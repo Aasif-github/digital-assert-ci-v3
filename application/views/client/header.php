@@ -22,7 +22,7 @@
     <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link text-white" aria-current="page" href="">Home</a>
+          <a class="nav-link text-white" aria-current="page" href="<?php echo site_url('client'); ?>">Home</a>
         </li>
         <li class="nav-item">
           <a class="nav-link text-white" href="#">Events</a>

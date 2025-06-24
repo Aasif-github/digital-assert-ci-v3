@@ -6,7 +6,7 @@ class Admin extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->model('Project_model');
-        $this->load->helper(['url', 'form']);
+        $this->load->helper(['url', 'form', 'file']);
         $this->load->library(['form_validation', 'session']);
         $this->load->database();
         // Placeholder for authentication check
@@ -52,6 +52,45 @@ class Admin extends CI_Controller {
         $data['title'] = 'Add Project';
         $this->load->view('admin/header', $data);
         $this->load->view('admin/add_project', $data);        
+    }
+
+    public function download($media_id) {
+        $user_id = $this->session->userdata('user_id') ?? 1;
+        if (!$user_id) {
+            $this->session->set_flashdata('error', 'Authentication required to download files.');
+            redirect('admin');
+        }
+
+        $media = $this->db->where('id', $media_id)->get('media_files')->row_array();
+        if (!$media) {
+            $this->session->set_flashdata('error', 'File not found.');
+            redirect('admin');
+        }
+
+        $file_path = FCPATH . 'public/' . $media['file_url'];
+        if (!file_exists($file_path)) {
+            log_message('error', 'Download - File not found: ' . $file_path);
+            $this->session->set_flashdata('error', 'File not available on server.');
+            redirect('admin');
+        }
+
+        $file_name = basename($media['file_url']);
+        $mime_type = $media['mime_type'] ?: get_mime_by_extension($file_name);
+        if (!$mime_type) {
+            $mime_type = 'application/octet-stream';
+        }
+
+        log_message('debug', 'Download - File: ' . $file_name . ', MIME: ' . $mime_type . ', Size: ' . filesize($file_path));
+
+        header('Content-Type: ' . $mime_type);
+        header('Content-Disposition: attachment; filename="' . $file_name . '"');
+        header('Content-Length: ' . filesize($file_path));
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        readfile($file_path);
+        exit;
     }
 
     public function store() {
@@ -192,7 +231,7 @@ class Admin extends CI_Controller {
         $config['file_ext_to_mimetypes'] = ['apk' => 'application/vnd.android.package-archive'];
         $config['max_size'] = 512000; // 500MB
         $config['file_ext_tolower'] = TRUE;
-        $config['check_mime'] = FALSE; // Add to upload config in update() and validate_media_files()
+        // $config['check_mime'] = FALSE; // Add to upload config in update() and validate_media_files()
         
         $this->load->library('upload', $config);
         $files = $_FILES['new_media_files'];
@@ -315,8 +354,8 @@ class Admin extends CI_Controller {
             $media_descriptions = $this->input->post('existing_media_descriptions', TRUE);
             $files = $_FILES['existing_media_files'] ?? [];
             
-            $config['detect_mime'] = FALSE;
-            $config['check_mime'] = FALSE; // Add to upload config in update() and validate_media_files()
+            // $config['detect_mime'] = FALSE;
+            // $config['check_mime'] = FALSE; // Add to upload config in update() and validate_media_files()
             
             $config['upload_path'] = FCPATH . 'public/storage/media/';
             $config['allowed_types'] = 'jpg|jpeg|png|mp4|mp3|3gp|pdf|doc|docx|txt|rtf|odt|xls|xlsx|csv|ppt|pptx|apk|zip';
@@ -387,7 +426,7 @@ class Admin extends CI_Controller {
             $files = $_FILES['new_media_files'];
             $media_titles = $this->input->post('new_media_titles', TRUE);
             $media_descriptions = $this->input->post('new_media_descriptions', TRUE);
-            $config['detect_mime'] = FALSE;
+            // $config['detect_mime'] = FALSE;
 
             $config['upload_path'] = FCPATH . 'public/storage/media/';
             $config['allowed_types'] = 'jpg|jpeg|png|mp4|mp3|3gp|pdf|doc|docx|txt|rtf|odt|xls|xlsx|csv|ppt|pptx|apk|zip';

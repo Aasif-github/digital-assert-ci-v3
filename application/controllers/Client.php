@@ -11,10 +11,36 @@ class Client extends CI_Controller {
 
     // Display all projects
     public function index() {
-        $data['projects'] = $this->Project_model->get_projects();
+        // Fetch projects
+        $this->db->select('p.id, p.project_name, p.project_thumbnail, p.project_short_description, p.year_of_publish, u.username');
+        $this->db->from('projects p');
+        $this->db->join('users u', 'u.id = p.created_by', 'left'); // optional if you want username
+        $this->db->order_by('p.created_at', 'DESC');
+        $query = $this->db->get();
+        $projects = $query->result_array();
+    
+        // Fetch resource counts grouped by project and file_type
+        $file_type_counts = $this->db->select('project_id, file_type, COUNT(*) as total')
+            ->from('media_files')
+            ->group_by(['project_id', 'file_type'])
+            ->get()
+            ->result_array();
+    
+        // Merge file type counts into each project
+        foreach ($projects as &$project) {
+            $project['file_types'] = [];
+            foreach ($file_type_counts as $count) {
+                if ($count['project_id'] == $project['id']) {
+                    $project['file_types'][$count['file_type']] = $count['total'];
+                }
+            }
+        }
+    
+        $data['projects'] = $projects;
         $data['title'] = 'Projects';
         $this->load->view('client/projects', $data);
     }
+    
 
     // Display a single project with its media files
     public function project($project_id) {

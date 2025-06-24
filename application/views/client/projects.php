@@ -5,32 +5,90 @@
     <title><?php echo $title; ?> - Digital Asset Management</title>
     <link rel="stylesheet" href="<?php echo base_url('assets/css/bootstrap.min.css'); ?>">
     <?php $this->load->view('client/header'); ?>
+ 
+    <style>
+        .card.flex-row {
+            min-height: 200px;
+        }
+
+        @media (max-width: 768px) {
+            .card.flex-row {
+                flex-direction: column !important;
+                min-height: auto;
+            }
+        }
+    </style>
+
 </head>
 <body>
-    <div class="container">
-        <h1 class="my-4">Projects</h1>
-        <div class="row">
-            <?php if (!empty($projects)): ?>
-                <?php foreach ($projects as $project): ?>
-                    <div class="col-md-4 mb-4">
-                        <div class="card">
-                            <?php if ($project['project_thumbnail']): ?>
-                                <img src="<?php echo base_url('public/' . $project['project_thumbnail']); ?>" class="card-img-top" alt="<?php echo $project['project_name']; ?>">
-                            <?php endif; ?>
-                            <div class="card-body">
-                                <h5 class="card-title"><?php echo $project['project_name']; ?></h5>
-                                <p class="card-text"><?php echo $project['project_short_description']; ?></p>
-                                <p><small>Created by: <?php echo $project['username'] ?? 'Unknown'; ?> | Year: <?php echo $project['year_of_publish'] ? date('Y', strtotime($project['year_of_publish'])) : 'N/A'; ?></small></p>
-                                <a href="<?php echo site_url('client/project/' . $project['id']); ?>" class="btn btn-primary">View Details</a>
-                            </div>
-                        </div>
-                    </div>
+            <div class="container">
+                <h1 class="my-4">Projects</h1>
+                <div class="row">
+                    <?php if (!empty($projects)): ?>
+                        <?php foreach ($projects as $project): ?>
+                            <div class="col-md-9 mb-4">
+                                <div class="card flex-row shadow-sm">
+                                    <div class="d-flex align-items-center justify-content-center" style="width: 200px; height: 150px; overflow: hidden;">
+                                        <?php if (!empty($project['project_thumbnail']) && file_exists(FCPATH . 'public/' . $project['project_thumbnail'])): ?>
+                                            <img src="<?php echo base_url('public/' . $project['project_thumbnail']); ?>" class="img-fluid" style="object-fit: cover; width: 100%; height: 100%;" alt="<?php echo $project['project_name']; ?>">
+                                        <?php else: ?>
+                                            <img src="<?php echo base_url('assets/images/default-thumbnail.png'); ?>" class="img-fluid" style="object-fit: cover; width: 100%; height: 100%;" alt="Default Thumbnail">
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="card-body d-flex flex-column justify-content-between">
+                                        <div>
+                                            <h5 class="card-title"><?php echo $project['project_name']; ?></h5>
+                                            <p class="card-text"><?php echo $project['project_short_description']; ?></p>
+                                            <p class="card-text">
+                                                <small class="text-muted">Created by: <?php echo $project['username'] ?? 'Unknown'; ?> |
+                                                    Year: <?php echo $project['year_of_publish'] ? date('Y', strtotime($project['year_of_publish'])) : 'N/A'; ?>
+                                                </small>
+                                            </p>
+                                        </div>
+                                        <!-- Display file types -->
+                                        <?php if (!empty($project['file_types'])): ?>
+                                            <div class="mt-2">
+                                                <p class="mb-1"><strong>Resources:</strong></p>
+                                                <ul class="list-inline">
+                                                    <?php foreach ($project['file_types'] as $type => $count): ?>
+                                                        <li class="list-inline-item badge bg-secondary me-1">
+                                                            <?= ucfirst($type) ?>: <?= $count ?>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                </ul>
+                                            </div>
+                                        <?php endif; ?>
+
+                                        <div class="mt-3">
+                                            <a href="<?php echo site_url('client/project/' . $project['id']); ?>" class="btn btn-primary btn-sm">View Details</a>
+                                            <?php if (!empty($project['download_url'])): ?>
+                                                <a href="<?php echo base_url($project['download_url']); ?>" class="btn btn-success btn-sm" download>Download</a>
+                                            <?php endif; ?>
+                                            <!-- <button class="btn btn-secondary btn-sm" onclick="shareProject('</?php echo site_url('client/project/' . $project['id']); ?>')">Share</button> -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                    
                 <?php endforeach; ?>
             <?php else: ?>
                 <p>No projects found.</p>
             <?php endif; ?>
         </div>
     </div>
+    
     <script src="<?php echo base_url('assets/js/bootstrap.bundle.min.js'); ?>"></script>
+ 
+        <script>
+        function shareProject(link) {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Check out this project',
+                    url: link
+                }).catch((error) => console.log('Share failed:', error));
+            } else {
+                prompt("Copy this link:", link);
+            }
+        }        
+    </script>
 </body>
 </html>
