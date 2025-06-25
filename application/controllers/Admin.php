@@ -108,7 +108,13 @@ class Admin extends CI_Controller {
         $this->form_validation->set_rules('year_of_publish', 'Year of Publish', 'callback_valid_date');
         $this->form_validation->set_rules('project_thumbnail', 'Project Thumbnail', 'callback_validate_thumbnail');
         $this->form_validation->set_rules('new_media_files[]', 'Media Files', 'callback_validate_media_files');
+        // $this->form_validation->set_rules('new_media_titles[]', 'Media Titles', 'callback_validate_media_titles');    
+        // $this->form_validation->set_rules('new_media_descriptions[]', 'Media descriptions', 'callback_validate_media_files'); 
     
+        // log_message('debug', 'Store - Media Titles: ' . print_r($this->input->post('media_titles'), true));
+        // log_message('debug', 'Store - Media Files: ' . print_r($_FILES['media_files'] ?? [], true));
+    
+        // Validate form
         if ($this->form_validation->run() === FALSE) {
             $this->session->set_flashdata('error', validation_errors());
             $this->show();
@@ -168,6 +174,16 @@ class Admin extends CI_Controller {
 
             $config['max_size'] = 512000; // 500MB
             $config['file_ext_tolower'] = TRUE;
+
+            $config['mimes'] = [
+                'apk' => [
+                    'application/vnd.android.package-archive',
+                    'application/octet-stream',
+                    'application/zip',
+                    'application/x-zip-compressed',
+                    'application/x-apk'
+                ]
+            ];
     
             for ($i = 0; $i < count($files['name']); $i++) {
                 if (!empty($files['name'][$i]) && !empty($media_titles[$i])) {
@@ -220,6 +236,7 @@ class Admin extends CI_Controller {
         $this->session->set_flashdata('success', 'Project created successfully.');
         redirect('admin');
     }
+     
     
     public function validate_media_files() {
         if (empty($_FILES['new_media_files']['name'][0])) {
@@ -576,7 +593,10 @@ class Admin extends CI_Controller {
             return 'unknown';
         }
 
+
+
         $mime_type = strtolower($mime_type);
+
         $mime_type_map = [
             'image/' => 'image',
             'video/' => 'video',
@@ -591,14 +611,15 @@ class Admin extends CI_Controller {
             'application/vnd.ms-powerpoint' => 'presentation',
             'application/vnd.openxmlformats-officedocument.presentationml' => 'presentation',
             'application/zip' => 'zip',
-            'apk' => ['application/vnd.android.package-archive', 'application/octet-stream'],
-            'text/' => 'text'
+            'apk' => ['application/vnd.android.package-archive', 'application/octet-stream', 'application/x-apk', 'application/zip', 'application/java-archive', 'application/x-zip-compressed'],
+            'text/' => 'text',
+            'application/java-archive' => 'apk',
         ];
 
         if (isset($mime_type_map[$mime_type])) {
             return $mime_type_map[$mime_type];
         }
-
+       
         foreach ($mime_type_map as $key => $type) {
             if (strpos($mime_type, $key) !== FALSE) {
                 return $type;

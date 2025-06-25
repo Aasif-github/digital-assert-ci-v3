@@ -122,9 +122,13 @@
                                                         </div>
                                                     <?php elseif ($file_extension === 'csv'): ?>
                                                         <div class="p-3 csv-table" id="csv-preview-<?php echo $media['id']; ?>"></div>
+                                                        <!-- to download -->
+                                                        <a href="<?= base_url('public/' . $media['file_url']); ?>">view</a>
                                                     <?php elseif (in_array($file_extension, ['doc', 'docx'])): ?>
                                                         <div class="p-3">
                                                             <iframe src="https://docs.google.com/viewer?url=<?php echo urlencode(base_url('public/' . $media['file_url'])); ?>&embedded=true" class="media-preview" title="<?php echo htmlspecialchars($media['title']); ?>"></iframe>
+                                                                <!-- to download -->
+                                                                <a href="<?= base_url('public/' . $media['file_url']); ?>">view</a>
                                                         </div>
                                                     <?php else: ?>
                                                         <div class="card-img-top text-center p-3 bg-light">File: <?php echo htmlspecialchars($media['title']); ?></div>

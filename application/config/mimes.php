@@ -28,8 +28,14 @@ return array(
     'csv'	=>	array('text/x-comma-separated-values', 'text/comma-separated-values', 'application/octet-stream', 'application/vnd.ms-excel', 'application/x-csv', 'text/x-csv', 'text/csv', 'application/csv', 'application/excel', 'application/vnd.msexcel', 'text/plain'),
     'ppt' => 'application/vnd.ms-powerpoint',
     'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    // 'apk' => ['application/vnd.android.package-archive', 'application/octet-stream'],    
-    'apk' => '*',    
+    'apk' => array(
+        'application/vnd.android.package-archive',
+        'application/octet-stream',
+        'application/x-apk',
+        'application/zip',
+        'application/java-archive',        
+        'application/x-zip-compressed'
+    ),    
     'zip' => array('application/zip', 'application/x-zip-compressed')
 );
 

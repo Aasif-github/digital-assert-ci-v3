@@ -23,6 +23,8 @@
 <body>
             <div class="container">
                 <h1 class="my-4">Projects</h1>
+                <button>Images</button>
+                <button>video</button>
                 <div class="row">
                     <?php if (!empty($projects)): ?>
                         <?php foreach ($projects as $project): ?>

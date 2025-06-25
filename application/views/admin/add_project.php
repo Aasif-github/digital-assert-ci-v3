@@ -27,9 +27,9 @@
     <div id="media-files-container">
         <div class="mb-3 media-file">
             <label class="form-label">Media File</label>
-            <input type="file" class="form-control" name="media_files[]">
-            <input type="text" class="form-control mt-2" name="media_titles[]" placeholder="Media Title" required>
-            <textarea class="form-control mt-2" name="media_descriptions[]" placeholder="Media Description"></textarea>
+            <input type="file" class="form-control" name="new_media_files[]">
+            <input type="text" class="form-control mt-2" name="new_media_titles[]" placeholder="Media Title" required>
+            <textarea class="form-control mt-2" name="new_media_descriptions[]" placeholder="Media Description"></textarea>
         </div>
     </div>
     <button type="button" class="btn btn-secondary mb-3" onclick="addMediaFile()">Add Another Media File</button>
@@ -43,9 +43,9 @@ function addMediaFile() {
     div.className = 'mb-3 media-file';
     div.innerHTML = `
         <label class="form-label">Media File</label>
-        <input type="file" class="form-control" name="media_files[]">
-        <input type="text" class="form-control mt-2" name="media_titles[]" placeholder="Media Title" required>
-        <textarea class="form-control mt-2" name="media_descriptions[]" placeholder="Media Description"></textarea>
+        <input type="file" class="form-control" name="new_media_files[]">
+        <input type="text" class="form-control mt-2" name="new_media_titles[]" placeholder="Media Title" required>
+        <textarea class="form-control mt-2" name="new_media_descriptions[]" placeholder="Media Description"></textarea>
         <button type="button" class="btn btn-danger mt-2" onclick="this.parentElement.remove()">Remove</button>
     `;
     container.appendChild(div);
