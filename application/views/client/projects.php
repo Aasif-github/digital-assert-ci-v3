@@ -30,13 +30,15 @@
                         <?php foreach ($projects as $project): ?>
                             <div class="col-md-9 mb-4">
                                 <div class="card flex-row shadow-sm">
-                                    <div class="d-flex align-items-center justify-content-center" style="width: 200px; height: 150px; overflow: hidden;">
+                                    <div class="d-flex align-items-center justify-content-center" style="width: 200px; height: 200px; overflow: hidden;">
                                         <?php if (!empty($project['project_thumbnail']) && file_exists(FCPATH . 'public/' . $project['project_thumbnail'])): ?>
                                             <img src="<?php echo base_url('public/' . $project['project_thumbnail']); ?>" class="img-fluid" style="object-fit: cover; width: 100%; height: 100%;" alt="<?php echo $project['project_name']; ?>">
                                         <?php else: ?>
                                             <img src="<?php echo base_url('assets/images/default-thumbnail.png'); ?>" class="img-fluid" style="object-fit: cover; width: 100%; height: 100%;" alt="Default Thumbnail">
                                         <?php endif; ?>
+                                        
                                     </div>
+                                    
                                     <div class="card-body d-flex flex-column justify-content-between">
                                         <div>
                                             <h5 class="card-title"><?php echo $project['project_name']; ?></h5>
@@ -49,7 +51,7 @@
                                         </div>
                                         <!-- Display file types -->
                                         <?php if (!empty($project['file_types'])): ?>
-                                            <div class="mt-2">
+                                            <div class="mt-1">
                                                 <p class="mb-1"><strong>Resources:</strong></p>
                                                 <ul class="list-inline">
                                                     <?php foreach ($project['file_types'] as $type => $count): ?>
@@ -61,7 +63,7 @@
                                             </div>
                                         <?php endif; ?>
 
-                                        <div class="mt-3">
+                                        <div class="mt-1">
                                             <a href="<?php echo site_url('client/project/' . $project['id']); ?>" class="btn btn-primary btn-sm">View Details</a>
                                             <?php if (!empty($project['download_url'])): ?>
                                                 <a href="<?php echo base_url($project['download_url']); ?>" class="btn btn-success btn-sm" download>Download</a>

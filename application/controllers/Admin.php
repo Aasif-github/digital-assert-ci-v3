@@ -593,7 +593,8 @@ class Admin extends CI_Controller {
             return 'unknown';
         }
 
-
+        // var_dump($mime_type);
+        // die();
 
         $mime_type = strtolower($mime_type);
 
@@ -610,11 +611,14 @@ class Admin extends CI_Controller {
             'text/csv' => 'spreadsheet',
             'application/vnd.ms-powerpoint' => 'presentation',
             'application/vnd.openxmlformats-officedocument.presentationml' => 'presentation',
-            'application/zip' => 'zip',
-            'apk' => ['application/vnd.android.package-archive', 'application/octet-stream', 'application/x-apk', 'application/zip', 'application/java-archive', 'application/x-zip-compressed'],
+            'application/zip' => 'apk',            
             'text/' => 'text',
-            'application/java-archive' => 'apk',
+            'application/java-archive' => 'apk',            
+            // 'apk' => ['application/vnd.android.package-archive', 'application/octet-stream', 'application/x-apk', 'application/zip', 'application/java-archive', 'application/x-zip-compressed'],
         ];
+        
+        // An .apk (Android Package) is just a ZIP archive with a specific structure. That’s why many systems, including PHP and some Linux tools, detect it as application/zip.
+
 
         if (isset($mime_type_map[$mime_type])) {
             return $mime_type_map[$mime_type];

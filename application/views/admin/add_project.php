@@ -1,4 +1,5 @@
-<h1 class="my-4">Add New Project</h1>
+<button class="btn btn-secondary btn-sm float-end" onclick="window.history.back()"><i class="fa-solid fa-arrow-left"></i>&nbsp;Back</button>
+<h2 class="my-4">Add New Project</h2>
 <?php echo form_open_multipart('admin/store'); ?>
     <div class="mb-3">
         <label for="project_name" class="form-label">Project Name</label>
@@ -16,14 +17,27 @@
         <label for="project_long_description" class="form-label">Long Description</label>
         <textarea class="form-control" id="project_long_description" name="project_long_description"><?php echo set_value('project_long_description'); ?></textarea>
     </div>
-    <div class="mb-3">
+    <!-- <div class="mb-3">
         <label for="language" class="form-label">Language</label>
-        <input type="text" class="form-control" id="language" name="language" value="<?php echo set_value('language'); ?>">
+        <input type="text" class="form-control" id="language" name="language" value="</?php echo set_value('language'); ?>">
     </div>
     <div class="mb-3">
         <label for="year_of_publish" class="form-label">Year of Publish</label>
+        <input type="date" class="form-control" id="year_of_publish" name="year_of_publish" value="</?php echo set_value('year_of_publish'); ?>">
+    </div> -->
+
+    <div class="row">
+    <div class="col-md-6 mb-3">
+        <label for="language" class="form-label">Language</label>
+        <input type="text" class="form-control" id="language" name="language" value="<?php echo set_value('language'); ?>">
+    </div>
+    <div class="col-md-6 mb-3">
+        <label for="year_of_publish" class="form-label">Year of Publish</label>
         <input type="date" class="form-control" id="year_of_publish" name="year_of_publish" value="<?php echo set_value('year_of_publish'); ?>">
     </div>
+</div>
+
+
     <div id="media-files-container">
         <div class="mb-3 media-file">
             <label class="form-label">Media File</label>
@@ -32,10 +46,11 @@
             <textarea class="form-control mt-2" name="new_media_descriptions[]" placeholder="Media Description"></textarea>
         </div>
     </div>
-    <button type="button" class="btn btn-secondary mb-3" onclick="addMediaFile()">Add Another Media File</button>
+    <button type="button" class="btn btn-secondary" onclick="addMediaFile()">Add Another Media File</button>
     <button type="submit" class="btn btn-primary">Create Project</button>
 <?php echo form_close(); ?>
-
+<br/>
+<br/>
 <script>
 function addMediaFile() {
     const container = document.getElementById('media-files-container');

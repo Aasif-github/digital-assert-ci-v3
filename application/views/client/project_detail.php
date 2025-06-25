@@ -56,13 +56,15 @@
             'Video' => [],
             'Documents' => [],
             'Images' => [],
+            "Apk" => [],
             'Others' => []
         ];
         $media_types = [
             'Audio' => ['mp3'],
             'Video' => ['mp4', '3gp'],
             'Documents' => ['pdf', 'doc', 'docx', 'txt', 'rtf', 'odt', 'xls', 'xlsx', 'csv', 'ppt', 'pptx'],
-            'Images' => ['jpg', 'jpeg', 'png', 'gif']
+            'Images' => ['jpg', 'jpeg', 'png', 'gif'],
+            'Apk' => ['apk', 'zip'],
         ];
         foreach ($media_files as $media) {
             $file_extension = strtolower($media['file_extension']);
@@ -122,23 +124,21 @@
                                                         </div>
                                                     <?php elseif ($file_extension === 'csv'): ?>
                                                         <div class="p-3 csv-table" id="csv-preview-<?php echo $media['id']; ?>"></div>
-                                                        <!-- to download -->
-                                                        <a href="<?= base_url('public/' . $media['file_url']); ?>">view</a>
-                                                    <?php elseif (in_array($file_extension, ['doc', 'docx'])): ?>
-                                                        <div class="p-3">
-                                                            <iframe src="https://docs.google.com/viewer?url=<?php echo urlencode(base_url('public/' . $media['file_url'])); ?>&embedded=true" class="media-preview" title="<?php echo htmlspecialchars($media['title']); ?>"></iframe>
-                                                                <!-- to download -->
-                                                                <a href="<?= base_url('public/' . $media['file_url']); ?>">view</a>
-                                                        </div>
+                                                        <?php elseif (in_array($file_extension, ['doc', 'docx'])): ?>
+                                                        <!-- <div class="p-3">
+                                                            <iframe src="https://docs.google.com/viewer?url=</?php echo urlencode(base_url('public/' . $media['file_url'])); ?>&embedded=true" class="media-preview" title="</?php echo htmlspecialchars($media['title']); ?>"></iframe>
+                                                           
+                                                        </div> -->
+                                                        <div class="card-img-top text-center p-3 bg-light">File: <?php echo htmlspecialchars($media['title']); ?></div>
                                                     <?php else: ?>
                                                         <div class="card-img-top text-center p-3 bg-light">File: <?php echo htmlspecialchars($media['title']); ?></div>
                                                     <?php endif; ?>
                                                     <div class="card-body">
                                                         <h5 class="card-title"><?php echo htmlspecialchars($media['title'] ?: 'Untitled'); ?></h5>
                                                         <p class="card-text"><?php echo htmlspecialchars($media['description'] ?: 'No description'); ?></p>
-                                                        <p><small>Type: <?php echo htmlspecialchars($media['file_type']); ?> | Size: <?php echo round($media['file_size'] / 1024, 2); ?> KB</small></p>
-                                                        <p><small>Uploaded by: <?php echo htmlspecialchars($media['username'] ?? 'Unknown'); ?></p>
-                                                        <a href="<?php echo $file_url; ?>" class="btn btn-primary" download>Download</a>
+                                                        <p>Type: <?php echo htmlspecialchars($media['file_type']); ?> | Size: <?php echo round($media['file_size'] / 1024, 2); ?> KB</p>
+                                                        <p>Uploaded by: <?php echo htmlspecialchars($media['username'] ?? 'Unknown'); ?></p>
+                                                        <a href="<?php echo base_url('public/' . $media['file_url']); ?>" class="btn btn-primary" download>Download</a>
                                                     </div>
                                                 </div>
                                             </div>

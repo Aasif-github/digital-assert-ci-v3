@@ -1,4 +1,5 @@
-<h1 class="my-4"><?php echo $project['project_name']; ?></h1>
+<button class="btn btn-secondary btn-sm float-end" onclick="window.history.back()"><i class="fa-solid fa-arrow-left"></i>&nbsp;Back</button>
+<h2 class="my-4"><?php echo $project['project_name']; ?></h2>
 <div class="row">
     <div class="col-md-8">
         <?php if ($project['project_thumbnail']): ?>
