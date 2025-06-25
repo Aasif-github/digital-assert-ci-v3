@@ -35,9 +35,20 @@ class Client extends CI_Controller {
                 }
             }
         }
-    
+
+        //Count total media files grouped by file_type (for all projects)
+        $total_media_by_type = $this->db
+        ->select('file_type, COUNT(*) as total')
+        ->from('media_files')
+        ->group_by('file_type')
+        ->get()
+        ->result_array();
+            
+
+        $data['total_media_by_type'] = $total_media_by_type;
         $data['projects'] = $projects;
         $data['title'] = 'Projects';
+        
         $this->load->view('client/projects', $data);
     }
     

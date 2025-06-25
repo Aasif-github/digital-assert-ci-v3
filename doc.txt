@@ -1,0 +1,34 @@
+Table-name:projects
+--------------------
+id,
+project_name
+project_thumbnail
+project_long_description
+project_short_description
+language
+year_of_publish
+created_by 
+created_at
+updated_at
+
+Table-name: media_files
+--------------------
+id,
+title
+description
+file_type
+mime_type	
+file_extension
+file_size
+file_url 
+uploaded_by
+project_id
+created_at
+updated_at
+
+
+
+
+
+Android package (application/vnd.android.package-archive)
+Android package (application/vnd.android.package-archive)
