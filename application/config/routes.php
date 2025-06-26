@@ -18,10 +18,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 // // Default route (Client Home)
 // $route['default_controller'] = 'home/index';
 
-
+// client
 $route['default_controller'] = 'client';
 $route['client'] = 'client/index';
 $route['client/project/(:num)'] = 'client/project/$1';
+$route['client/media_files_by_type/(:any)'] = 'client/media_files_by_type/$1';
+
+// admin
 $route['admin'] = 'admin/index';
 $route['admin/show'] = 'admin/show';
 $route['admin/store'] = 'admin/store';

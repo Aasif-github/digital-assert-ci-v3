@@ -25,7 +25,7 @@
                 <h2 class="my-4">Projects</h2>
                
                 <?php foreach ($total_media_by_type as $item): ?>
-                    <a href="<?php echo site_url('admin/media_files_by_type/' . urlencode($item['file_type'])); ?>" class="btn btn-outline-secondary btn-sm me-1 mb-1">
+                    <a href="<?php echo site_url('client/media_files_by_type/' . urlencode($item['file_type'])); ?>" class="btn btn-outline-secondary btn-sm me-1 mb-1">
                         <?php echo $item['file_type']; ?>: <?php echo $item['total']; ?>
                     </a>
                 <?php endforeach; ?>

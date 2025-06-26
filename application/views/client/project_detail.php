@@ -32,9 +32,9 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="my-4"><?php echo htmlspecialchars($project['project_name']); ?></h1>
+        <h2 class="my-4"><?php echo htmlspecialchars($project['project_name']); ?></h2>
         
-        <a href="<?php echo site_url('client'); ?>" class="btn btn-secondary mt-3 float-end">Back to Projects</a>
+        <a href="<?php echo site_url('client'); ?>" class="btn btn-secondary btn-sm float-end"><i class="fa-solid fa-arrow-left"></i>&nbsp;Back</a>
         
         <div class="row">
             <div class="col-md-8">

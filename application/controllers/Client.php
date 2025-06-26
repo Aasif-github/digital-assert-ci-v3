@@ -63,4 +63,18 @@ class Client extends CI_Controller {
         $data['title'] = $data['project']['project_name'];
         $this->load->view('client/project_detail', $data);
     }
+
+    public function media_files_by_type($resource_type) {
+        
+        if (empty($resource_type)) {
+            show_error('Invalid resource type', 400);
+            return;
+        }
+
+        $file_type = urldecode($resource_type);
+        $data['media_files'] = $this->Project_model->get_project_media_by_type($file_type);
+        $data['title'] = htmlspecialchars($file_type); // Sanitize title
+        // var_dump($resource_type);
+        $this->load->view('client/resource_type', $data);
+    }
 }

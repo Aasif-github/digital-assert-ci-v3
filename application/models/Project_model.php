@@ -39,5 +39,26 @@ class Project_model extends CI_Model {
         return $query->result_array();
     }
 
+    public function get_project_media_by_type($file_type){
+        $this->db->select('
+            p.project_name,
+            p.language,
+            p.year_of_publish,
+            m.title,
+            m.description,
+            m.file_type,
+            m.file_extension,
+            m.file_size,
+            m.file_url,
+            m.uploaded_by
+        ');
+        $this->db->from('projects p');
+        $this->db->join('media_files m', 'p.id = m.project_id', 'inner');
+        $this->db->where('m.file_type', $file_type); 
+        $this->db->order_by('m.updated_at', 'DESC');
+        
+        $query = $this->db->get();
+        return $query->result_array(); // Returns objects instead of arrays
+    }
     
 }
