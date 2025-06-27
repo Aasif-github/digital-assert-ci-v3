@@ -193,7 +193,10 @@
                     <div class="col-8">
                     <p><i class="fas fa-language me-2"></i><strong>Language:</strong> <?php echo htmlspecialchars($file['language']); ?></p>
               <p><i class="fas fa-calendar-alt me-2"></i><strong>Year:</strong> <?php echo htmlspecialchars($file['year_of_publish']); ?></p>
-              <p><i class="fas fa-user me-2"></i><strong>Uploaded By:</strong> <?php echo htmlspecialchars($file['uploaded_by']); ?></p>
+              <p><i class="fas fa-user me-2"></i><strong>Uploaded By:</strong> 
+              <!-- </?php echo htmlspecialchars($file['uploaded_by']); ?> -->
+               Admin
+            </p>
                     </div>
                 </div>
              
@@ -215,10 +218,10 @@
                 <!-- view button -->
                 <?php if (in_array($extension, $viewable) && $extension !== 'apk'): ?>
                   <?php if (in_array($extension, ['docx', 'ppt', 'pptx'])): ?>
-                    <a href="https://docs.google.com/viewer?url=<?php echo urlencode(base_url($file['file_url'])); ?>" 
+                    <!-- <a href="</?php echo urlencode(base_url('public/' . $file['file_url'])); ?>&embedded=true" 
                        class="btn btn-view w-50" target="_blank">
                       <i class="fas fa-eye me-2"></i> View
-                    </a>
+                    </a> -->
                   <?php else: ?>
                     <button class="btn btn-sm btn-outline-secondary mb-3 btn-view w-100" 
                             data-bs-toggle="modal" 
