@@ -23,6 +23,7 @@ $route['default_controller'] = 'client';
 $route['client'] = 'client/index';
 $route['client/project/(:num)'] = 'client/project/$1';
 $route['client/media_files_by_type/(:any)'] = 'client/media_files_by_type/$1';
+$route['client/search/(:num)'] = 'client/search/$1';
 
 // admin
 $route['admin'] = 'admin/index';

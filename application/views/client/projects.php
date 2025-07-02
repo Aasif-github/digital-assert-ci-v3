@@ -32,7 +32,7 @@
                 <br/>
                 <br/>                
                 <div class="row">
-                    <div class="col-md-8 mb-4">
+                    <div class="col-md-9 mb-4">
                         <?php if (!empty($projects)): ?>
                                 <?php foreach ($projects as $project): ?>
                                     
@@ -85,8 +85,8 @@
                             <p>No projects found.</p>
                         <?php endif; ?>         
                     </div>    
-                    <div class="col-md-4 mb-4">
-                        Total Projects: <?php echo $total_projects??'0'; ?>
+                    <div class="col-md-3 mb-4">
+                        <!-- Total Projects: </?php echo $total_projects??'0'; ?> -->
                     </div>
                 </div>                                 
     </div>

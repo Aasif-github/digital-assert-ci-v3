@@ -60,5 +60,46 @@ class Project_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array(); // Returns objects instead of arrays
     }
+
+    //for client
+    public function search_projects_and_media($query, $project_id) {
+        $this->db->select('
+            p.id AS project_id,
+            p.project_name,
+            p.project_thumbnail,
+            p.project_short_description,
+            p.project_long_description,
+            p.language,
+            p.year_of_publish,
+            m.id AS media_id,
+            m.title AS media_title,
+            m.description AS media_description,
+            m.file_type,
+            m.mime_type,
+            m.file_extension,
+            m.file_size,
+            m.file_url
+        ');
+        $this->db->from('projects p');
+        $this->db->join('media_files m', 'm.project_id = p.id', 'left');
+
+        // Filter by specific project ID
+        $this->db->where('p.id', $project_id);
+
+        $this->db->group_start();
+            $this->db->like('p.project_name', $query);
+            $this->db->or_like('p.project_short_description', $query);
+            $this->db->or_like('p.project_long_description', $query);
+            $this->db->or_like('m.title', $query);
+            $this->db->or_like('m.description', $query);
+            $this->db->or_like('m.file_type', $query);
+            $this->db->or_like('m.mime_type', $query);
+            $this->db->or_like('m.file_extension', $query);
+        $this->db->group_end();        
+        $this->db->order_by('p.id', 'DESC');
+        $query = $this->db->get();
+        return $query->result();
+    }
+    
     
 }

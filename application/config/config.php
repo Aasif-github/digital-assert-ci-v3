@@ -23,10 +23,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-// $config['base_url'] = 'http://localhost/zmq-digital/';
+$config['base_url'] = 'http://localhost/zmq-digital/';
 
-// enet
-$config['base_url'] = 'http://192.168.1.49/zmq-digital/';
+// enet - conenct to wifi zmq58 to demonstrate this application
+// $config['base_url'] = 'http://192.168.1.49/zmq-digital/';
 
 /*
 |--------------------------------------------------------------------------

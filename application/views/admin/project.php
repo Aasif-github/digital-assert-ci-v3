@@ -19,7 +19,7 @@
             <div class="col-md-4 mb-4">
                 <div class="card">
                     <?php if (in_array($media['file_extension'], ['jpg', 'jpeg', 'png', 'gif'])): ?>
-                        <img src="<?php echo base_url($media['file_url']); ?>" class="card-img-top" alt="<?php echo $media['title']; ?>">
+                        <img src="<?php echo base_url('public/' . $media['file_url']); ?>" class="card-img-top" alt="<?php echo $media['title']; ?>">
                     <?php else: ?>
                         <div class="card-img-top text-center p-3 bg-light">File: <?php echo $media['title']; ?></div>
                     <?php endif; ?>

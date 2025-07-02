@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title><?php echo htmlspecialchars($title); ?> - Digital Asset Management</title>
-    <link rel="stylesheet" href="<?php echo base_url('assets/css/bootstrap.min.css'); ?>">
+    <!-- <link rel="stylesheet" href="</?php echo base_url('assets/css/bootstrap.min.css'); ?>"> -->
     <style>
         .media-preview {
             max-height: 300px;
@@ -27,11 +27,26 @@
         .accordion-item {
             margin-bottom: 10px;
         }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-img-top {
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover .card-img-top {
+            transform: scale(1.05);
+        }
     </style>
     <?php $this->load->view('client/header'); ?>
 </head>
 <body>
     <div class="container">
+
+        <h4 class="my-4"><?php echo htmlspecialchars($project['id']); ?></h4>
+        <input type="hidden" id="projectId" value="<?php echo htmlspecialchars($project['id']); ?>" />
         <h2 class="my-4"><?php echo htmlspecialchars($project['project_name']); ?></h2>
         
         <a href="<?php echo site_url('client'); ?>" class="btn btn-secondary btn-sm float-end"><i class="fa-solid fa-arrow-left"></i>&nbsp;Back</a>
@@ -49,6 +64,19 @@
             </div>
         </div>
         <h3 class="my-4">Media Files</h3>
+        <div class='col-md-8 mx-auto'>
+            <!-- Search Bar -->
+            <div class="mb-4">
+                <input type="text" id="userInput" class="form-control" placeholder="Search by media type or file title..." oninput="handleInput()">
+            </div>
+        </div>
+        
+        <div id="originalDiv">
+            This content will be hidden on input.
+        </div>
+
+        <div id="resultDiv" style="display: none;"></div>
+
         <?php
         // Group media files by type
         $media_groups = [
@@ -156,9 +184,26 @@
         <?php endif; ?>
       
     </div>
-    <script src="<?php echo base_url('assets/js/jquery.min.js'); ?>"></script>
-    <script src="<?php echo base_url('assets/js/bootstrap.bundle.min.js'); ?>"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+      <!-- Modal for media preview -->
+      <div class="modal fade" id="mediaModal" tabindex="-1" aria-labelledby="mediaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mediaModalLabel"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="mediaContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- <script src="</?php echo base_url('assets/js/jquery.min.js'); ?>"></script>
+    <script src="</?php echo base_url('assets/js/bootstrap.bundle.min.js'); ?>"></script>
+     -->
+     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+     <!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
             <?php foreach ($media_files as $media): ?>
@@ -196,6 +241,157 @@
                 <?php endif; ?>
             <?php endforeach; ?>
         });
+    </script>
+
+ <!-- Bootstrap 5 JS and Popper.js -->
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Your existing script modified to handle the response and render cards
+        let timeout = null;
+
+        function handleInput() {
+            const input = document.getElementById("userInput").value.trim();
+            document.getElementById("originalDiv").style.display = "none";
+            const projectId = document.getElementById('projectId').value;
+            clearTimeout(timeout);
+
+            timeout = setTimeout(() => {
+                if (input.length === 0) {
+                    document.getElementById("resultDiv").style.display = "none";
+                    return;
+                }
+
+                const base_url = `<?php echo base_url('index.php/client/search/') ?>`;
+                const url = base_url + projectId;
+
+                fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `query=${encodeURIComponent(input)}`
+                })
+                .then(response => response.json()) // Changed to .json() to parse JSON response
+                .then(data => {
+                    const resultDiv = document.getElementById("resultDiv");
+                    resultDiv.innerHTML = ''; // Clear previous content
+                    
+                    if (data.status === 'success' && data.data.length > 0) {
+                        data.data.forEach(project => {
+                            console.log(project)
+                            let newFileUrl = project.media.file_url.replace('/storage/', '/public/storage/');
+                            
+                            const card = document.createElement('div');
+                            newFileUrl
+                            card.className = 'col-12 col-sm-6 col-md-4 col-lg-3 mb-4 d-flex';                                                    
+                            card.innerHTML = `
+                                <div class="card h-100 w-100">
+                                    <img src="${newFileUrl || project.default_thumbnail}" class="card-img-top img-fluid" alt="${project.project_name}" style="object-fit: cover; height: 200px;">
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title">${project.media.title}</h5>
+                                        <p class="card-text flex-grow-1">${project.media.media_description}</p>
+                                        <p class="card-text flex-grow-1">Type:${project.media.file_type} | Size:${project.media.file_size} Kb</p>
+                                        <div class="mt-auto d-flex flex-column flex-sm-row gap-2">
+                                            <button type="button" class="btn btn-primary flex-fill" data-bs-toggle="modal" data-bs-target="#mediaModal"
+                                                onclick="showMedia('${project.media.title}', '${project.media.file_type}', '${project.media.file_url}')">
+                                                View ${project.media.file_type.charAt(0).toUpperCase() + project.media.file_type.slice(1)}
+                                            </button>
+                                            <a href="${project.media.file_url.replace('/storage/', '/public/storage/')}" class="btn btn-secondary flex-fill" download>
+                                                Download
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            resultDiv.appendChild(card);
+                        });
+                        resultDiv.className = 'row g-4';
+                        resultDiv.style.display = 'flex';
+                    } else {
+                        resultDiv.innerHTML = '<p class="text-center w-100">No results found.</p>';
+                        resultDiv.className = 'row';
+                        resultDiv.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    const resultDiv = document.getElementById("resultDiv");
+                    resultDiv.innerHTML = '<p class="text-center w-100 text-danger">An error occurred while fetching data.</p>';
+                    resultDiv.style.display = 'block';
+                });
+            }, 300);
+        }
+
+        function showMedia(title, fileType, fileUrl) {
+            const modalTitle = document.getElementById('mediaModalLabel');
+            const mediaContent = document.getElementById('mediaContent');
+            modalTitle.textContent = title;
+
+            // let fileUrl = "http://localhost/zmq-digital/storage/media/azan13.mp3";
+
+            // Replace "/storage/" with "/public/storage/"
+            fileUrl = fileUrl.replace("/storage/", "/public/storage/");
+
+            // console.log(fileUrl);            
+            switch (fileType.toLowerCase()) {
+        case 'audio':
+            mediaContent.innerHTML = `
+                <audio controls class="w-100">
+                    <source src="${fileUrl}" type="audio/${fileUrl.split('.').pop()}">
+                    Your browser does not support the audio element.
+                </audio>
+            `;
+            break;
+
+        case 'video':
+            mediaContent.innerHTML = `
+                <video controls class="w-100">
+                    <source src="${fileUrl}" type="video/${fileUrl.split('.').pop()}">
+                    Your browser does not support the video element.
+                </video>
+            `;
+            break;
+
+        case 'image':
+            mediaContent.innerHTML = `
+                <img src="${fileUrl}" class="img-fluid" alt="${title}">
+            `;
+            break;
+
+        case 'pdf':
+            mediaContent.innerHTML = `
+                <iframe src="${fileUrl}" class="w-100" style="height: 500px;" title="${title}">
+                    Your browser does not support PDFs. <a href="${fileUrl}">Download PDF</a>
+                </iframe>
+            `;
+            break;
+
+        case 'csv':
+            // For CSV, provide a download link as direct rendering is complex
+            mediaContent.innerHTML = `
+                <p class="text-center">CSV file: <a href="${fileUrl}" download="${title}.csv">Download ${title}</a></p>
+            `;
+            break;
+
+        case 'doc':
+            // For DOC, provide a download link or use a viewer like Google Docs
+            mediaContent.innerHTML = `
+                <p class="text-center">Word Document: <a href="${fileUrl}" download="${title}.doc">Download ${title}</a></p>
+            `;
+            break;
+
+        case 'apk':
+            // For APK, provide a download link
+            mediaContent.innerHTML = `
+                <p class="text-center">APK File: <a href="${fileUrl}" download="${title}.apk">Download ${title}</a></p>
+            `;
+            break;
+
+        default:
+            mediaContent.innerHTML = '<p class="text-center">Unsupported media type.</p>';
+            break;
+    }             
+}
     </script>
 </body>
 </html>
