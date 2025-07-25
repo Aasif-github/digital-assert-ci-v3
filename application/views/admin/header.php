@@ -7,7 +7,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Offline Font Awesome CSS -->
     <link rel="stylesheet" href="<?php echo base_url('assets/fontawesome-free-6.7.2-web/css/all.min.css'); ?>">
-
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -18,16 +17,40 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                <li class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link" href="<?php echo site_url('client'); ?>">Home</a>
-                </li>    
-                <li class="nav-item">
+                    </li>    
+                    <li class="nav-item">
                         <a class="nav-link" href="<?php echo site_url('admin'); ?>">Dashboard</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="<?php echo site_url('admin/show'); ?>">Add Project</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?php echo site_url('admin/show'); ?>">Manage Users</a>
+                    </li>
                     <!-- Add more admin links as needed -->
+                </ul>
+            </div>
+            <!-- Right-aligned links -->
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNavRight">
+                <ul class="navbar-nav">
+                    <?php if ($this->session->userdata('logged_in')): ?>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <?php echo $this->session->userdata('username'); ?>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <!-- <a class="dropdown-item" href="#">Profile</a> -->
+                                <a class="dropdown-item" href="<?php echo site_url('logout'); ?>">Logout</a>
+                            </div>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?php echo site_url('login'); ?>">Login</a>
+                        </li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </div>
@@ -39,3 +62,7 @@
         <?php if ($this->session->flashdata('error')): ?>
             <div class="alert alert-danger"><?php echo $this->session->flashdata('error'); ?></div>
         <?php endif; ?>
+    <!-- Bootstrap JS (includes Popper.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

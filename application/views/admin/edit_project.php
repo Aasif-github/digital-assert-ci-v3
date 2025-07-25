@@ -45,7 +45,30 @@
         <?php foreach ($project['mediaFiles'] as $index => $media): ?>
             <div class="mb-3 media-file" data-id="<?php echo $media['id']; ?>">
                 <input type="hidden" name="existing_media_ids[<?php echo $index; ?>]" value="<?php echo $media['id']; ?>">
+                <!-- Start Media Thumbnail -->
+                <!-- <label for="media_thumbnail" class="form-label">Media Thumbnail (jpg, jpeg, png, max 2MB)</label>                 -->
+                <!-- <br> -->
+                <!-- </?php var_dump($media['media_thumbnail']); ?>
+
+                </?php var_dump(file_exists('public/' . $media['media_thumbnail']));?>
+                
+                </?php var_dump(in_array(strtolower($media['file_extension']), ['jpg', 'jpeg', 'png', 'gif']));?> -->
+
+                <!--
+                </?php if (!empty($media['media_thumbnail']) && in_array(strtolower($media['file_extension']), ['jpg', 'jpeg', 'png', 'gif']) && file_exists('public/' . $media['media_thumbnail'])): ?>
+                    
+                <img src="</?php echo base_url('public/' . $media['media_thumbnail']); ?>" class="img-thumbnail mt-2" style="max-width: 200px;" alt="Media File">
+                </?php else: ?>
+                    <p class="text-warning">No thumbnail available</p>
+                  
+                </?php endif; ?>
+                <input type="file" class="form-control" id="media_thumbnail" name="existing_media_thumbnail[</?php echo $index; ?>]" accept="image/jpeg,image/png">
+                <!-- End Media Thumbnail -->
+                <!-- <br/> -->
+                
+
                 <label class="form-label">Media File: <?php echo htmlspecialchars($media['title']); ?></label>
+                <br>
                 <?php if (in_array(strtolower($media['file_extension']), ['jpg', 'jpeg', 'png', 'gif'])): ?>
                     <img src="<?php echo base_url('public/' . $media['file_url']); ?>" class="img-thumbnail mt-2" style="max-width: 200px;" alt="Media File">
                 <?php else: ?>

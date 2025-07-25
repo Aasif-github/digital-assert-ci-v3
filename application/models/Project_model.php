@@ -87,9 +87,9 @@ class Project_model extends CI_Model {
         $this->db->where('p.id', $project_id);
 
         $this->db->group_start();
-            $this->db->like('p.project_name', $query);
-            $this->db->or_like('p.project_short_description', $query);
-            $this->db->or_like('p.project_long_description', $query);
+            // $this->db->like('p.project_name', $query);
+            // $this->db->or_like('p.project_short_description', $query);
+            // $this->db->or_like('p.project_long_description', $query);
             $this->db->or_like('m.title', $query);
             $this->db->or_like('m.description', $query);
             $this->db->or_like('m.file_type', $query);
@@ -101,5 +101,9 @@ class Project_model extends CI_Model {
         return $query->result();
     }
     
-    
+    //for admin
+    public function isAuthenticated($username, $password) {
+        $query = $this->db->get_where('users', ['username' => $username, 'password' => $password]);
+        return $query->num_rows() > 0;
+    }   
 }

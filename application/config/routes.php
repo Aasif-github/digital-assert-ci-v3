@@ -24,6 +24,7 @@ $route['client'] = 'client/index';
 $route['client/project/(:num)'] = 'client/project/$1';
 $route['client/media_files_by_type/(:any)'] = 'client/media_files_by_type/$1';
 $route['client/search/(:num)'] = 'client/search/$1';
+$route['client/all-projects'] = 'client/all_projects';
 
 // admin
 $route['admin'] = 'admin/index';
@@ -34,7 +35,11 @@ $route['admin/update/(:num)'] = 'admin/update/$1';
 $route['admin/destroy/(:num)'] = 'admin/destroy/$1';
 $route['admin/project/(:num)'] = 'admin/project/$1';
 
-
+$route['login'] = 'admin/login';    
+$route['logout'] = 'admin/logout';
+$route['register'] = 'admin/register';
+$route['authenticateUser'] = 'admin/authenticateUser';
+$route['userRegistration'] = 'admin/registerUser';  
 
 // // Upload limits route
 // $route['upload-limits'] = 'home/upload_limits';

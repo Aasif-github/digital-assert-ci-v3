@@ -23,15 +23,21 @@
 <body>
             <div class="container">
                 <h2 class="my-4">Projects</h2>
-               
+
                 <?php foreach ($total_media_by_type as $item): ?>
                     <a href="<?php echo site_url('client/media_files_by_type/' . urlencode($item['file_type'])); ?>" class="btn btn-outline-secondary btn-sm me-1 mb-1">
                         <?php echo $item['file_type']; ?>: <?php echo $item['total']; ?>
                     </a>
                 <?php endforeach; ?>
+                <!-- all_projects -->                   
+                <a href="<?php echo site_url('client/all-projects'); ?>" class="btn btn-outline-success btn-sm me-1 mb-1 float-end">
+                Total Projects:&nbsp;<?php echo number_format($total_projects)?>
+                    </a>
                 <br/>
-                <br/>                
-                <div class="row">
+                <br/> 
+                
+                <!-- <div class="row"> -->
+                <div class="col-md-12">
                     <div class="col-md-9 mb-4">
                         <?php if (!empty($projects)): ?>
                                 <?php foreach ($projects as $project): ?>
@@ -85,9 +91,10 @@
                             <p>No projects found.</p>
                         <?php endif; ?>         
                     </div>    
-                    <div class="col-md-3 mb-4">
-                        <!-- Total Projects: </?php echo $total_projects??'0'; ?> -->
                     </div>
+                    <!-- <div class="col-md-3 mb-4"> -->
+                        <!-- Total Projects: </?php echo $total_projects??'0'; ?> -->
+                    <!-- </div> -->
                 </div>                                 
     </div>
     

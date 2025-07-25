@@ -14,6 +14,7 @@
     <!-- Offline Font Awesome CSS -->
     <link rel="stylesheet" href="<?php echo base_url('assets/fontawesome-free-6.7.2-web/css/all.min.css'); ?>">
     
+    
 </head>
 <body>
 <nav class="navbar navbar-expand-lg text-white" style="background:linear-gradient(to bottom, rgba(102, 16, 242, 1), rgba(102, 16, 242, 0.95));">
@@ -37,7 +38,12 @@
         <button class="btn btn-outline-success" type="submit">Search</button>
       </form> -->
       <div>
-        <a class="nav-link" href="<?php echo site_url('admin'); ?>">Admin</a>
+      <a class="nav-link " href="<?php echo site_url('login'); ?>">Login</a>
+      </div>
+      &nbsp;&nbsp;
+      <div>
+        <!-- <a class="nav-link" href="</?php echo site_url('admin'); ?>">Admin</a> -->        
+        <a class="btn btn-outline-light btn-sm" href="<?php echo site_url('register'); ?>">Register</a>
       </div>
     </div>
   </div>

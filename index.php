@@ -55,6 +55,10 @@
  */
 	define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
 
+	// date_default_timezone_set($this->config->item('timezone'));
+// if we are not using config file
+
+
 /*
  *---------------------------------------------------------------
  * ERROR REPORTING
@@ -304,7 +308,7 @@ switch (ENVIRONMENT)
 	}
 
 	define('VIEWPATH', $view_folder.DIRECTORY_SEPARATOR);
-
+	date_default_timezone_set('Asia/Kolkata');
 /*
  * --------------------------------------------------------------------
  * LOAD THE BOOTSTRAP FILE

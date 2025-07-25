@@ -2,8 +2,22 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
-
-<h2 class="my-4">Admin Dashboard</h2>
+<style>
+        /* Center and widen the search bar */
+        .dt-search {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1em;
+        }
+        .dt-search input {
+            width: 500px !important; /* Adjust width as needed */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+<h2 class="my-4">Dashboard</h2>
 <p>Total Projects: <?php echo $total_projects; ?></p>
 
 <table class="table table-bordered table-striped" id="myTable">

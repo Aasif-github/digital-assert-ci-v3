@@ -15,6 +15,57 @@ class Admin extends CI_Controller {
         // }    
     }
 
+    public function login() {        
+        
+        $this->load->view('admin/login');
+    }
+
+    public function register() {
+        $this->load->view('admin/register');
+    }
+
+    public function logout() {
+        $this->session->sess_destroy();
+        redirect('login');
+    }
+
+    public function authenticateUser() {
+        $username = $this->input->post('username');
+        $password = $this->input->post('password');
+        // print_r($username);
+        // print_r('password'.$password);
+        // die();
+
+        // $isAuthenticated = $this->project_model->isAuthenticated($username, $password);
+
+        $user = $this->db->get_where('users', ['username' => $username, 'password' => $password])->row();
+        
+        if ($user) {
+            // $this->session->set_userdata('user_id', $user->id);
+            $this->session->set_userdata([
+                'user_id' => $user->id,
+                'username' => $user->username,
+                'logged_in' => true
+            ]);
+            
+            redirect('admin');
+        }        
+
+        $this->session->set_flashdata('error', 'Invalid username or password.');
+        redirect('admin/login');
+    }
+
+    public function registerUser() {
+        $username = $this->input->post('username');
+        $email = $this->input->post('email');
+        $password = $this->input->post('password');
+
+        $this->db->insert('users', ['username' => $username, 'email' => $email, 'password' => $password]);
+
+        $this->session->set_flashdata('success', 'User registered successfully.');  
+                
+        redirect('admin/login');
+    }       
 
     public function index() {
         // Fetch projects
@@ -107,6 +158,8 @@ class Admin extends CI_Controller {
         $this->form_validation->set_rules('language', 'Language', 'max_length[50]');
         $this->form_validation->set_rules('year_of_publish', 'Year of Publish', 'callback_valid_date');
         $this->form_validation->set_rules('project_thumbnail', 'Project Thumbnail', 'callback_validate_thumbnail');
+        $this->form_validation->set_rules('new_media_thumbnails[]', 'Media Thumbnails', 'callback_validate_thumbnail');
+        
         $this->form_validation->set_rules('new_media_files[]', 'Media Files', 'callback_validate_media_files');
         // $this->form_validation->set_rules('new_media_titles[]', 'Media Titles', 'callback_validate_media_titles');    
         // $this->form_validation->set_rules('new_media_descriptions[]', 'Media descriptions', 'callback_validate_media_files'); 
@@ -157,24 +210,17 @@ class Admin extends CI_Controller {
         ];
         $this->db->insert('projects', $project_data);
         $project_id = $this->db->insert_id();
-    
+
         // Handle media files
         if (!empty($_FILES['new_media_files']['name'][0])) {
+            $media_thumbnails = $_FILES['new_media_thumbnails'];
             $files = $_FILES['new_media_files'];
             $media_titles = $this->input->post('new_media_titles');
             $media_descriptions = $this->input->post('new_media_descriptions');
-    
+
+            // Configuration for media file uploads
             $config['upload_path'] = FCPATH . 'public/storage/media/';
             $config['allowed_types'] = 'jpg|jpeg|png|mp4|mp3|3gp|pdf|doc|docx|txt|rtf|odt|xls|xlsx|csv|ppt|pptx|apk|zip';
-            
-            $config['mimes'] = ['apk' => ['application/vnd.android.package-archive', 'application/octet-stream', 'application/zip']];
-            // $config['check_mime'] = FALSE; // Add to upload config in update() and validate_media_files()
-        
-            $config['file_ext_to_mimetypes'] = ['apk' => 'application/vnd.android.package-archive'];
-
-            $config['max_size'] = 512000; // 500MB
-            $config['file_ext_tolower'] = TRUE;
-
             $config['mimes'] = [
                 'apk' => [
                     'application/vnd.android.package-archive',
@@ -184,44 +230,75 @@ class Admin extends CI_Controller {
                     'application/x-apk'
                 ]
             ];
-    
+            $config['max_size'] = 512000; // 500MB
+            $config['file_ext_tolower'] = TRUE;
+
+            // Configuration for thumbnail uploads
+            $thumb_config['upload_path'] = FCPATH . 'public/storage/thumbnails/';
+            $thumb_config['allowed_types'] = 'jpg|jpeg|png';
+            $thumb_config['max_size'] = 2048; // 2MB
+            $thumb_config['file_ext_tolower'] = TRUE;
+
             for ($i = 0; $i < count($files['name']); $i++) {
                 if (!empty($files['name'][$i]) && !empty($media_titles[$i])) {
+                    // Handle media file upload
                     $_FILES['file']['name'] = $files['name'][$i];
                     $_FILES['file']['type'] = $files['type'][$i];
                     $_FILES['file']['tmp_name'] = $files['tmp_name'][$i];
                     $_FILES['file']['error'] = $files['error'][$i];
                     $_FILES['file']['size'] = $files['size'][$i];
-    
-                    // Debug MIME type
-                    log_message('debug', 'File: ' . $files['name'][$i] . ', MIME Type: ' . $files['type'][$i] . ', Size: ' . $files['size'][$i]);
-    
+
                     $this->upload->initialize($config, TRUE);
-                    if ($this->upload->do_upload('file')) {
-                        $file_data = $this->upload->data();
-                        $mime_type = $file_data['file_type'];
-                        $file_type = $this->_get_file_type($mime_type);
-                        $media_data = [
-                            'project_id' => $project_id,
-                            'title' => $media_titles[$i],
-                            'description' => $media_descriptions[$i] ?? null,
-                            'file_type' => $file_type,
-                            'mime_type' => $mime_type,
-                            'file_extension' => ltrim($file_data['file_ext'], '.'),
-                            'file_size' => $file_data['file_size'],
-                            'file_url' => 'storage/media/' . $file_data['file_name'],
-                            'uploaded_by' => $user_id,
-                            'created_at' => date('Y-m-d H:i:s'),
-                            'updated_at' => date('Y-m-d H:i:s')
-                        ];
-                        $this->db->insert('media_files', $media_data);
-                    } else {
+                    if (!$this->upload->do_upload('file')) {
                         log_message('error', 'Media upload failed for ' . $files['name'][$i] . ': ' . $this->upload->display_errors());
                         $this->session->set_flashdata('error', 'Upload failed for ' . $files['name'][$i] . ': ' . $this->upload->display_errors());
                         $this->db->trans_rollback();
                         $this->show();
                         return;
                     }
+
+                    $file_data = $this->upload->data();
+                    $mime_type = $file_data['file_type'];
+                    $file_type = $this->_get_file_type($mime_type);
+
+                    // Handle media thumbnail upload
+                    $thumbnail_path = null;
+                    if (!empty($media_thumbnails['name'][$i])) {
+                        $_FILES['thumb']['name'] = $media_thumbnails['name'][$i];
+                        $_FILES['thumb']['type'] = $media_thumbnails['type'][$i];
+                        $_FILES['thumb']['tmp_name'] = $media_thumbnails['tmp_name'][$i];
+                        $_FILES['thumb']['error'] = $media_thumbnails['error'][$i];
+                        $_FILES['thumb']['size'] = $media_thumbnails['size'][$i];
+
+                        $this->upload->initialize($thumb_config, TRUE);
+                        if ($this->upload->do_upload('thumb')) {
+                            $thumb_data = $this->upload->data();
+                            $thumbnail_path = 'storage/thumbnails/' . $thumb_data['file_name'];
+                        } else {
+                            log_message('error', 'Thumbnail upload failed for ' . $media_thumbnails['name'][$i] . ': ' . $this->upload->display_errors());
+                            $this->session->set_flashdata('error', 'Thumbnail upload failed for ' . $media_thumbnails['name'][$i] . ': ' . $this->upload->display_errors());
+                            $this->db->trans_rollback();
+                            $this->show();
+                            return;
+                        }
+                    }
+
+                    // Insert media file data into database
+                    $media_data = [
+                        'project_id' => $project_id,
+                        'media_thumbnail' => $thumbnail_path, // Store the path, not the array
+                        'title' => $media_titles[$i],
+                        'description' => $media_descriptions[$i] ?? null,
+                        'file_type' => $file_type,
+                        'mime_type' => $mime_type,
+                        'file_extension' => ltrim($file_data['file_ext'], '.'),
+                        'file_size' => $file_data['file_size'],
+                        'file_url' => 'storage/media/' . $file_data['file_name'],
+                        'uploaded_by' => $user_id,
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ];
+                    $this->db->insert('media_files', $media_data);
                 }
             }
         }
@@ -236,7 +313,6 @@ class Admin extends CI_Controller {
         $this->session->set_flashdata('success', 'Project created successfully.');
         redirect('admin');
     }
-     
     
     public function validate_media_files() {
         if (empty($_FILES['new_media_files']['name'][0])) {
@@ -292,7 +368,7 @@ class Admin extends CI_Controller {
         
     }
 
-    public function update($project_id) {
+    public function __update($project_id) {
         $user_id = $this->session->userdata('user_id') ?? 1;
         if (!$user_id) {
             $this->session->set_flashdata('error', 'Authentication required to update project.');
@@ -304,7 +380,8 @@ class Admin extends CI_Controller {
         $this->form_validation->set_rules('project_short_description', 'Short Description', 'max_length[255]');
         $this->form_validation->set_rules('language', 'Language', 'max_length[50]');
         $this->form_validation->set_rules('year_of_publish', 'Year of Publish', 'callback_valid_date');
-        $this->form_validation->set_rules('project_thumbnail', 'Project Thumbnail', 'callback_validate_thumbnail');
+        $this->form_validation->set_rules('project_thumbnail', 'Project Thumbnail', 'callback_validate_thumbnail');        
+        $this->form_validation->set_rules('media_thumbnails[]', 'Media Thumbnails', 'callback_validate_thumbnails','');        
         $this->form_validation->set_rules('new_media_files[]', 'Media Files', 'callback_validate_media_files');
     
         if ($this->form_validation->run() === FALSE) {
@@ -367,6 +444,7 @@ class Admin extends CI_Controller {
         // Handle existing media files
         if ($this->input->post('existing_media_ids')) {
             $media_ids = $this->input->post('existing_media_ids', TRUE);
+            $media_thumbnail_ids = $this->input->post('existing_media_thumbnail', TRUE);
             $media_titles = $this->input->post('existing_media_titles', TRUE);
             $media_descriptions = $this->input->post('existing_media_descriptions', TRUE);
             $files = $_FILES['existing_media_files'] ?? [];
@@ -512,6 +590,286 @@ class Admin extends CI_Controller {
         $this->session->set_flashdata('success', 'Project updated successfully.');
         redirect('admin');
     }
+
+    public function update($project_id) {
+        $user_id = $this->session->userdata('user_id') ?? 1;
+        if (!$user_id) {
+            $this->session->set_flashdata('error', 'Authentication required to update project.');
+            redirect('admin');
+        }
+    
+        // Set validation rules
+        $this->form_validation->set_rules('project_name', 'Project Name', 'required|max_length[100]');
+        $this->form_validation->set_rules('project_short_description', 'Short Description', 'max_length[255]');
+        $this->form_validation->set_rules('language', 'Language', 'max_length[50]');
+        $this->form_validation->set_rules('year_of_publish', 'Year of Publish', 'callback_valid_date');
+        $this->form_validation->set_rules('project_thumbnail', 'Project Thumbnail', 'callback_validate_thumbnail');
+        $this->form_validation->set_rules('new_media_files[]', 'Media Files', 'callback_validate_media_files');
+    
+        if ($this->form_validation->run() === FALSE) {
+            $this->session->set_flashdata('error', validation_errors());
+            $this->edit($project_id);
+            return;
+        }
+    
+        $this->db->trans_begin();
+    
+        // Update project
+        $project_data = [
+            'project_name' => $this->input->post('project_name', TRUE),
+            'project_long_description' => $this->input->post('project_long_description', TRUE),
+            'project_short_description' => $this->input->post('project_short_description', TRUE),
+            'language' => $this->input->post('language', TRUE),
+            'year_of_publish' => $this->input->post('year_of_publish', TRUE),
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+    
+        // Handle thumbnail upload
+        if (!empty($_FILES['project_thumbnail']['name'])) {
+            $config['upload_path'] = FCPATH . 'public/storage/thumbnails/';
+            $config['allowed_types'] = 'jpg|jpeg|png|gif';
+            $config['max_size'] = 2048; // 2MB
+            $config['file_ext_tolower'] = TRUE;
+            $this->load->library('upload', $config);
+            if ($this->upload->do_upload('project_thumbnail')) {
+                $thumbnail_data = $this->upload->data();
+                $project_data['project_thumbnail'] = 'storage/thumbnails/' . $thumbnail_data['file_name'];
+                $project = $this->Project_model->get_project($project_id);
+                if (!empty($project['project_thumbnail']) && file_exists(FCPATH . 'public/' . $project['project_thumbnail'])) {
+                    unlink(FCPATH . 'public/' . $project['project_thumbnail']);
+                }
+            } else {
+                $this->session->set_flashdata('error', 'Thumbnail upload failed: ' . $this->upload->display_errors());
+                $this->db->trans_rollback();
+                $this->edit($project_id);
+                return;
+            }
+        }
+    
+        $this->db->where('id', $project_id)->update('projects', $project_data);
+    
+        // Handle deleted media files
+        if ($this->input->post('deleted_media_ids')) {
+            $deleted_media_ids = array_filter(explode(',', $this->input->post('deleted_media_ids', TRUE)), 'is_numeric');
+            $media_files = $this->db->where_in('id', $deleted_media_ids)
+                ->where('project_id', $project_id)
+                ->get('media_files')
+                ->result_array();
+            foreach ($media_files as $media) {
+                if (!empty($media['file_url']) && file_exists(FCPATH . 'public/' . $media['file_url'])) {
+                    unlink(FCPATH . 'public/' . $media['file_url']);
+                }
+                if (!empty($media['media_thumbnail']) && file_exists(FCPATH . 'public/' . $media['media_thumbnail'])) {
+                    unlink(FCPATH . 'public/' . $media['media_thumbnail']);
+                }
+                $this->db->where('id', $media['id'])->delete('media_files');
+            }
+        }
+    
+        // Handle existing media files
+        if ($this->input->post('existing_media_ids')) {
+            $media_ids = $this->input->post('existing_media_ids', TRUE);
+            $media_titles = $this->input->post('existing_media_titles', TRUE);
+            $media_descriptions = $this->input->post('existing_media_descriptions', TRUE);
+            $files = $_FILES['existing_media_files'] ?? [];
+            $thumbnails = $_FILES['existing_media_thumbnail'] ?? [];
+            
+            $config['upload_path'] = FCPATH . 'public/storage/media/';
+            $config['allowed_types'] = 'jpg|jpeg|png|mp4|mp3|3gp|pdf|doc|docx|txt|rtf|odt|xls|xlsx|csv|ppt|pptx|apk|zip';
+            $config['max_size'] = 512000; // 500MB
+            $config['file_ext_tolower'] = TRUE;
+            $config['mimes'] = [
+                'apk' => [
+                    'application/vnd.android.package-archive',
+                    'application/octet-stream',
+                    'application/zip',
+                    'application/x-zip-compressed',
+                    'application/x-apk'
+                ]
+            ];
+            $this->load->library('upload');
+    
+            $thumbnail_config['upload_path'] = FCPATH . 'public/storage/thumbnails/';
+            $thumbnail_config['allowed_types'] = 'jpg|jpeg|png|gif';
+            $thumbnail_config['max_size'] = 2048; // 2MB
+            $thumbnail_config['file_ext_tolower'] = TRUE;
+    
+            foreach ($media_ids as $index => $media_id) {
+                $media_data = [
+                    'title' => $media_titles[$index] ?? null,
+                    'description' => $media_descriptions[$index] ?? null,
+                    'updated_at' => date('Y-m-d H:i:s')
+                ];
+    
+                // Handle media file upload
+                if (!empty($files['name'][$index])) {
+                    $_FILES['file']['name'] = $files['name'][$index];
+                    $_FILES['file']['type'] = $files['type'][$index];
+                    $_FILES['file']['tmp_name'] = $files['tmp_name'][$index];
+                    $_FILES['file']['error'] = $files['error'][$index];
+                    $_FILES['file']['size'] = $files['size'][$index];
+    
+                    log_message('debug', 'Existing File: ' . $files['name'][$index] . ', MIME Type: ' . $files['type'][$index] . ', Size: ' . $files['size'][$index]);
+    
+                    $this->upload->initialize($config, TRUE);
+                    if ($this->upload->do_upload('file')) {
+                        $file_data = $this->upload->data();
+                        $mime_type = $file_data['file_type'];
+                        $file_type = $this->_get_file_type($mime_type);
+                        $media_data = array_merge($media_data, [
+                            'file_type' => $file_type,
+                            'mime_type' => $mime_type,
+                            'file_extension' => ltrim($file_data['file_ext'], '.'),
+                            'file_size' => $file_data['file_size'],
+                            'file_url' => 'storage/media/' . $file_data['file_name']
+                        ]);
+    
+                        $existing_media = $this->db->where('id', $media_id)
+                            ->where('project_id', $project_id)
+                            ->get('media_files')
+                            ->row_array();
+                        if (!empty($existing_media['file_url']) && file_exists(FCPATH . 'public/' . $existing_media['file_url'])) {
+                            unlink(FCPATH . 'public/' . $existing_media['file_url']);
+                        }
+                    } else {
+                        $this->session->set_flashdata('error', 'Media upload failed for ' . $files['name'][$index] . ': ' . $this->upload->display_errors());
+                        log_message('error', 'Media upload failed for ' . $files['name'][$index] . ': ' . $this->upload->display_errors());
+                        continue;
+                    }
+                }
+    
+                // Handle media thumbnail upload
+                if (!empty($thumbnails['name'][$index])) {
+                    $_FILES['thumbnail']['name'] = $thumbnails['name'][$index];
+                    $_FILES['thumbnail']['type'] = $thumbnails['type'][$index];
+                    $_FILES['thumbnail']['tmp_name'] = $thumbnails['tmp_name'][$index];
+                    $_FILES['thumbnail']['error'] = $thumbnails['error'][$index];
+                    $_FILES['thumbnail']['size'] = $thumbnails['size'][$index];
+    
+                    log_message('debug', 'Thumbnail File: ' . $thumbnails['name'][$index] . ', MIME Type: ' . $thumbnails['type'][$index] . ', Size: ' . $thumbnails['size'][$index]);
+    
+                    $this->upload->initialize($thumbnail_config, TRUE);
+                    if ($this->upload->do_upload('thumbnail')) {
+                        $thumbnail_data = $this->upload->data();
+                        $media_data['media_thumbnail'] = 'storage/thumbnails/' . $thumbnail_data['file_name'];
+    
+                        $existing_media = $this->db->where('id', $media_id)
+                            ->where('project_id', $project_id)
+                            ->get('media_files')
+                            ->row_array();
+                        if (!empty($existing_media['media_thumbnail']) && file_exists(FCPATH . 'public/' . $existing_media['media_thumbnail'])) {
+                            unlink(FCPATH . 'public/' . $existing_media['media_thumbnail']);
+                        }
+                    } else {
+                        $this->session->set_flashdata('error', 'Thumbnail upload failed for media ' . $media_id . ': ' . $this->upload->display_errors());
+                        log_message('error', 'Thumbnail upload failed for media ' . $media_id . ': ' . $this->upload->display_errors());
+                        continue;
+                    }
+                }
+    
+                $this->db->where('id', $media_id)->where('project_id', $project_id)->update('media_files', $media_data);
+            }
+        }
+    
+        // Handle new media files
+        if (!empty($_FILES['new_media_files']['name'][0])) {
+            $files = $_FILES['new_media_files'];
+            $media_titles = $this->input->post('new_media_titles', TRUE);
+            $media_descriptions = $this->input->post('new_media_descriptions', TRUE);
+            $thumbnails = $_FILES['new_media_thumbnail'] ?? [];
+            
+            $config['upload_path'] = FCPATH . 'public/storage/media/';
+            $config['allowed_types'] = 'jpg|jpeg|png|mp4|mp3|3gp|pdf|doc|docx|txt|rtf|odt|xls|xlsx|csv|ppt|pptx|apk|zip';
+            $config['mimes'] = [
+                'apk' => [
+                    'application/vnd.android.package-archive',
+                    'application/octet-stream',
+                    'application/zip',
+                    'application/x-zip-compressed',
+                    'application/x-apk'
+                ]
+            ];
+            $config['max_size'] = 512000; // 500MB
+            $config['file_ext_tolower'] = TRUE;
+    
+            $thumbnail_config['upload_path'] = FCPATH . 'public/storage/thumbnails/';
+            $thumbnail_config['allowed_types'] = 'jpg|jpeg|png|gif';
+            $thumbnail_config['max_size'] = 2048; // 2MB
+            $thumbnail_config['file_ext_tolower'] = TRUE;
+    
+            $this->load->library('upload');
+    
+            for ($i = 0; $i < count($files['name']); $i++) {
+                if ($files['name'][$i] && !empty($media_titles[$i])) {
+                    $_FILES['file']['name'] = $files['name'][$i];
+                    $_FILES['file']['type'] = $files['type'][$i];
+                    $_FILES['file']['tmp_name'] = $files['tmp_name'][$i];
+                    $_FILES['file']['error'] = $files['error'][$i];
+                    $_FILES['file']['size'] = $files['size'][$i];
+    
+                    log_message('debug', 'New File: ' . $files['name'][$i] . ', MIME Type: ' . $files['type'][$i] . ', Size: ' . $files['size'][$i]);
+    
+                    $this->upload->initialize($config, TRUE);
+                    if ($this->upload->do_upload('file')) {
+                        $file_data = $this->upload->data();
+                        $mime_type = $file_data['file_type'];
+                        $file_type = $this->_get_file_type($mime_type);
+                        $media_data = [
+                            'project_id' => $project_id,
+                            'title' => $media_titles[$i],
+                            'description' => $media_descriptions[$i] ?? null,
+                            'file_type' => $file_type,
+                            'mime_type' => $mime_type,
+                            'file_extension' => ltrim($file_data['file_ext'], '.'),
+                            'file_size' => $file_data['file_size'],
+                            'file_url' => 'storage/media/' . $file_data['file_name'],
+                            'uploaded_by' => $user_id,
+                            'created_at' => date('Y-m-d H:i:s'),
+                            'updated_at' => date('Y-m-d H:i:s')
+                        ];
+    
+                        // Handle media thumbnail upload for new media
+                        if (!empty($thumbnails['name'][$i])) {
+                            $_FILES['thumbnail']['name'] = $thumbnails['name'][$i];
+                            $_FILES['thumbnail']['type'] = $thumbnails['type'][$i];
+                            $_FILES['thumbnail']['tmp_name'] = $thumbnails['tmp_name'][$i];
+                            $_FILES['thumbnail']['error'] = $thumbnails['error'][$i];
+                            $_FILES['thumbnail']['size'] = $thumbnails['size'][$i];
+    
+                            log_message('debug', 'New Thumbnail File: ' . $thumbnails['name'][$i] . ', MIME Type: ' . $thumbnails['type'][$i] . ', Size: ' . $thumbnails['size'][$i]);
+    
+                            $this->upload->initialize($thumbnail_config, TRUE);
+                            if ($this->upload->do_upload('thumbnail')) {
+                                $thumbnail_data = $this->upload->data();
+                                $media_data['media_thumbnail'] = 'storage/thumbnails/' . $thumbnail_data['file_name'];
+                            } else {
+                                $this->session->set_flashdata('error', 'Thumbnail upload for new media failed: ' . $this->upload->display_errors());
+                                log_message('error', 'Thumbnail upload for new media failed: ' . $this->upload->display_errors());
+                                continue;
+                            }
+                        }
+    
+                        $this->db->insert('media_files', $media_data);
+                    } else {
+                        $this->session->set_flashdata('error', 'Media upload failed for ' . $files['name'][$i] . ': ' . $this->upload->display_errors());
+                        log_message('error', 'Media upload failed for ' . $files['name'][$i] . ': ' . $this->upload->display_errors());
+                        continue;
+                    }
+                }
+            }
+        }
+    
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            $this->session->set_flashdata('error', 'Failed to update project.');
+            $this->edit($project_id);
+            return;
+        }
+        $this->db->trans_commit();
+    
+        $this->session->set_flashdata('success', 'Project updated successfully.');
+        redirect('admin');
+    }
     
     public function destroy($project_id) {
         $this->db->trans_start();
@@ -572,7 +930,18 @@ class Admin extends CI_Controller {
         return TRUE;
     }
 
-    public function validate_thumbnail() {
+    public function validate_thumbnail($str) {
+        if (empty($_FILES['project_thumbnail']['name']) && empty($_FILES['new_media_thumbnails']['name'][0])) {
+            return TRUE; // Allow empty thumbnails if optional
+        }
+        $config['upload_path'] = FCPATH . 'public/storage/thumbnails/';
+        $config['allowed_types'] = 'jpg|jpeg|png';
+        $config['max_size'] = 2048;
+        $this->load->library('upload', $config);
+        return $this->upload->do_upload('project_thumbnail') || $this->upload->do_upload('new_media_thumbnails');
+    }
+
+    public function __validate_thumbnail() {
         if (empty($_FILES['project_thumbnail']['name'])) {
             return TRUE;
         }

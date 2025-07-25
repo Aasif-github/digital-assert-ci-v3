@@ -44,11 +44,14 @@ class Client extends CI_Controller {
         ->get()
         ->result_array();
             
+        $this->db->from('projects');
+        $total_projects = $this->db->count_all_results();
 
         $data['total_media_by_type'] = $total_media_by_type;
         $data['projects'] = $projects;
         $data['title'] = 'Projects';
-        
+        $data['total_projects'] = $total_projects;
+
         $this->load->view('client/projects', $data);
     }
     
@@ -60,7 +63,7 @@ class Client extends CI_Controller {
             show_404();
         }
         $data['media_files'] = $this->Project_model->get_project_media($project_id);
-        $data['title'] = $data['project']['project_name'];
+        $data['title'] = $data['project']['project_name'];        
         $this->load->view('client/project_detail', $data);
     }
 
@@ -480,5 +483,65 @@ class Client extends CI_Controller {
                 ->set_status_header(500)
                 ->set_output(json_encode($response));
         }
+    }
+
+    public function all_projects(){
+        try {
+        // Fetch projects
+        $this->db->select('p.id, p.project_name, p.project_thumbnail, p.project_short_description, p.year_of_publish, p.created_at, p.updated_at');
+        $this->db->from('projects p');
+        $this->db->order_by('p.created_at', 'DESC');
+        $query = $this->db->get();
+        $projects = $query->result_array();
+
+        /*
+        // Fetch file type counts
+        $file_type_counts = $this->db->select('project_id, file_type, COUNT(*) as total')
+            ->from('media_files')
+            ->group_by(['project_id', 'file_type'])
+            ->get()
+            ->result_array();
+
+        // Transform projects to include file type counts
+        foreach ($projects as &$project) {
+            $project['file_types'] = [];
+            foreach ($file_type_counts as $count) {
+                if ($count['project_id'] == $project['id']) {
+                    $project['file_types'][$count['file_type']] = $count['total'];
+                }
+            }
+        }
+       */
+      // Fetch file_type counts with latest updated_at for each project_id + file_type
+        $file_type_data = $this->db
+            ->select('project_id, file_type, COUNT(*) as total, MAX(updated_at) as last_updated')
+            ->from('media_files')
+            ->group_by(['project_id', 'file_type'])
+            ->get()
+            ->result_array();
+
+        // Combine file_type data with projects
+        foreach ($projects as &$project) {
+            $project['file_types'] = [];
+            foreach ($file_type_data as $file_info) {
+                if ($file_info['project_id'] == $project['id']) {
+                    $project['file_types'][$file_info['file_type']] = [
+                        'count' => $file_info['total'],
+                        'updated_at' => $file_info['last_updated'],
+                    ];
+                }
+            }
+        }
+
+        $data['projects'] = $projects;
+        $data['total_projects'] = $this->db->count_all('projects');
+        $data['title'] = 'Total Projects';
+        
+        $this->load->view('client/header', $data);
+        $this->load->view('client/all_projects', $data);      
+            
+        }catch (Exception $e) {
+            log_message('error', 'Search error: ' . $e->getMessage());
+        } 
     }
 }
