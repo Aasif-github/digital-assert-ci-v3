@@ -7,6 +7,14 @@ class Client extends CI_Controller {
         parent::__construct();
         $this->load->model('Project_model');
         $this->load->helper('url');
+        $this->load->library('session');
+        $this->load->database();
+
+        // Check if user is logged in
+        if (!$this->session->userdata('logged_in')) {
+            // Redirect to login page if not logged in
+            redirect('login');
+        }
     }
 
     // Display all projects

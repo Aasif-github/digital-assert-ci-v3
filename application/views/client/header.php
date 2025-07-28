@@ -29,27 +29,40 @@
           <a class="nav-link text-white" aria-current="page" href="<?php echo site_url('client'); ?>">Home</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-white" href="#">Events</a>
+          <!-- <a class="nav-link text-white" href="#">Events</a> -->
         </li>
         
-      </ul>
-      <!-- <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form> -->
-      <div>
-      <a class="nav-link " href="<?php echo site_url('login'); ?>">Login</a>
-      </div>
-      &nbsp;&nbsp;
-      <div>
-        <!-- <a class="nav-link" href="</?php echo site_url('admin'); ?>">Admin</a> -->        
-        <a class="btn btn-outline-light btn-sm" href="<?php echo site_url('register'); ?>">Register</a>
-      </div>
+      </ul>          
+
+      <!-- User Dropdown -->
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNavRight">
+                <ul class="navbar-nav">
+                    <?php if ($this->session->userdata('logged_in')): ?>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <?php echo $this->session->userdata('username'); ?>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <!-- <a class="dropdown-item" href="#">Profile</a> -->
+                                <a class="dropdown-item" href="<?php echo site_url('logout'); ?>">Logout</a>
+                            </div>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?php echo site_url('login'); ?>">Login</a>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </div>
     </div>
   </div>
 </nav>
 
-    
+    <?php
+    $session_data = $this->session->all_userdata();
+    print_r($session_data);
+    ?>
 
     
 

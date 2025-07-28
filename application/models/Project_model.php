@@ -106,4 +106,34 @@ class Project_model extends CI_Model {
         $query = $this->db->get_where('users', ['username' => $username, 'password' => $password]);
         return $query->num_rows() > 0;
     }   
+
+    public function createUser($data) {
+        $this->db->insert('users', $data);
+        return $this->db->insert_id();
+    }
+
+    public function get_user_by_id($id) {
+        return $this->db->get_where('users', array('id' => $id))->row();
+    }
+    public function get_user_by_email($email) {
+        return $this->db->get_where('users', array('email' => $email))->row();
+    }
+
+    public function get_user_by_username($username) {
+        return $this->db->get_where('users', array('username' => $username))->row();
+    }
+
+    public function get_all_roles() {
+        return $this->db->get('roles')->result();
+    }
+
+    public function update_user($id, $data) {
+        $this->db->where('id', $id);
+        return $this->db->update('users', $data);
+    }
+
+    public function delete_user($id) {
+        $this->db->where('id', $id);
+        return $this->db->delete('users');
+    }
 }

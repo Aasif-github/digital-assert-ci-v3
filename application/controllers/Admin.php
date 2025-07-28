@@ -9,63 +9,18 @@ class Admin extends CI_Controller {
         $this->load->helper(['url', 'form', 'file']);
         $this->load->library(['form_validation', 'session']);
         $this->load->database();
-        // Placeholder for authentication check
-        // if (!$this->session->userdata('user_id')) {
-        //     redirect('auth/login');
-        // }    
+         
+         // Get current method
+         $current_method = $this->router->fetch_method();
+         $current_class  = $this->router->fetch_class();
+ 
+         // Bypass login and auth methods
+         $allowed_methods = ['login', 'authenticateUser', 'logout'];
+ 
+         if (!in_array($current_method, $allowed_methods) && !$this->session->userdata('logged_in')) {
+             redirect('login');
+         }
     }
-
-    public function login() {        
-        
-        $this->load->view('admin/login');
-    }
-
-    public function register() {
-        $this->load->view('admin/register');
-    }
-
-    public function logout() {
-        $this->session->sess_destroy();
-        redirect('login');
-    }
-
-    public function authenticateUser() {
-        $username = $this->input->post('username');
-        $password = $this->input->post('password');
-        // print_r($username);
-        // print_r('password'.$password);
-        // die();
-
-        // $isAuthenticated = $this->project_model->isAuthenticated($username, $password);
-
-        $user = $this->db->get_where('users', ['username' => $username, 'password' => $password])->row();
-        
-        if ($user) {
-            // $this->session->set_userdata('user_id', $user->id);
-            $this->session->set_userdata([
-                'user_id' => $user->id,
-                'username' => $user->username,
-                'logged_in' => true
-            ]);
-            
-            redirect('admin');
-        }        
-
-        $this->session->set_flashdata('error', 'Invalid username or password.');
-        redirect('admin/login');
-    }
-
-    public function registerUser() {
-        $username = $this->input->post('username');
-        $email = $this->input->post('email');
-        $password = $this->input->post('password');
-
-        $this->db->insert('users', ['username' => $username, 'email' => $email, 'password' => $password]);
-
-        $this->session->set_flashdata('success', 'User registered successfully.');  
-                
-        redirect('admin/login');
-    }       
 
     public function index() {
         // Fetch projects
@@ -99,6 +54,207 @@ class Admin extends CI_Controller {
         $this->load->view('admin/dashboard', $data);        
     }
 
+
+    public function login() {                
+        $this->load->view('admin/login');
+    }
+
+    public function register() {
+        $this->load->view('admin/register');
+    }
+
+    public function logout() {
+        $this->session->sess_destroy();
+        redirect('login');
+    }
+
+    public function authenticateUser() {
+        $username = $this->input->post('username');
+        $password = $this->input->post('password');
+        // print_r($username);
+        // print_r('password'.$password);
+        // die();
+
+        // $isAuthenticated = $this->project_model->isAuthenticated($username, $password);
+
+        $user = $this->db->get_where('users', ['username' => $username, 'password' => $password])->row();
+        
+        if ($user) {
+            // $this->session->set_userdata('user_id', $user->id);
+            $this->session->set_userdata([
+                'user_id' => $user->id,
+                'username' => $user->username,
+                'role_id' => $user->role_id,
+                'logged_in' => true
+            ]);
+            
+            if($user->role_id == 1) {
+                redirect('admin');
+            }else {
+                redirect('client');
+            }            
+        }        
+
+        $this->session->set_flashdata('error', 'Invalid username or password.');
+        redirect('admin/login');
+    }
+
+    public function registerUser() {
+        $username = $this->input->post('username');
+        $email = $this->input->post('email');
+        $password = $this->input->post('password');
+
+        $this->db->insert('users', ['username' => $username, 'email' => $email, 'password' => $password]);
+
+        $this->session->set_flashdata('success', 'User registered successfully.');  
+                
+        redirect('admin/login');
+    }       
+
+    public function addUser() {
+        
+        $data['roles'] = $this->db->get('roles')->result();
+        $this->load->view('admin/header');
+        $this->load->view('admin/add_user', $data);
+    }
+
+    public function viewUser() {
+
+        // $data['users'] = $this->db->get('users')->result_array();
+        $this->db->select('users.id, users.name, users.username, users.email, users.is_active, roles.role_name as role');
+        $this->db->from('users');
+        $this->db->join('roles', 'users.role_id = roles.id', 'inner');
+        $this->db->where('users.role_id !=', 1);
+        $data['users'] = $this->db->get()->result_array();
+
+        $this->load->view('admin/header');
+        $this->load->view('admin/view_users', $data);
+    }   
+    
+
+    public function createUser() {
+        
+        $userData = [
+            'name' => $this->input->post('name'),
+            'username' => $this->input->post('username'),
+            'email' => $this->input->post('email'),
+            'password' => $this->input->post('password'),
+            'role_id' => $this->input->post('role_id')    
+        ];
+        
+        if(empty($userData['name']) || empty($userData['username']) || empty($userData['email']) || empty($userData['password']) || empty($userData['role_id'])) {
+            $this->session->set_flashdata('error', 'All fields are required.');
+            redirect('admin/addUser');
+        }
+
+        // if($this->Project_model->isUserExists($userData['username'])) {
+        //     $this->session->set_flashdata('error', 'User already exists.');
+        //     redirect('admin/addUser');
+        // }
+
+        // if($this->Project_model->isEmailExists($userData['email'])) {
+        //     $this->session->set_flashdata('error', 'Email already exists.');
+        //     redirect('admin/addUser');
+        // }
+
+        if($userData['password'] != $this->input->post('confirm_password')) {
+            $this->session->set_flashdata('error', 'Passwords do not match.');
+            redirect('admin/addUser');
+        }
+
+        // var_dump($userData);
+        // die();
+        
+        $this->Project_model->createUser($userData);
+        $this->session->set_flashdata('success', 'User created successfully.');  
+    
+        redirect('admin');
+    }
+
+    public function editUser($user_id) {
+        $data['user'] = $this->db->where('id', $user_id)->get('users')->row();
+        $data['roles'] = $this->db->get('roles')->result();
+        $this->load->view('admin/header');
+        $this->load->view('admin/edit_user', $data);        
+    }
+    
+    public function updateUser($id) {
+        $this->form_validation->set_rules('name', 'Name', 'required|trim');
+        $this->form_validation->set_rules('email', 'Email', 'required|valid_email|callback_check_email_exists[' . $id . ']');
+        $this->form_validation->set_rules('username', 'Username', 'required|trim|callback_check_username_exists[' . $id . ']');
+        $this->form_validation->set_rules('role_id', 'Role', 'required');
+        
+        if ($this->input->post('password')) {
+            $this->form_validation->set_rules('password', 'Password', 'min_length[6]');
+            $this->form_validation->set_rules('confirm_password', 'Confirm Password', 'matches[password]');
+        }
+
+        if ($this->form_validation->run() == FALSE) {
+            $data['user'] = $this->User_model->get_user_by_id($id);
+            $data['roles'] = $this->Role_model->get_all_roles();
+            $this->load->view('edit_user', $data);
+        } else {
+            $user_data = array(
+                'name' => $this->input->post('name'),
+                'email' => $this->input->post('email'),
+                'username' => $this->input->post('username'),
+                'role_id' => $this->input->post('role_id')
+            );
+            // var_dump($user_data);
+            // die();
+
+            if ($this->input->post('password')) {
+                $user_data['password'] = password_hash($this->input->post('password'), PASSWORD_DEFAULT);
+            }
+
+            if ($this->Project_model->update_user($id, $user_data)) {
+                $this->session->set_flashdata('message', 'User updated successfully');
+                redirect('view-user');
+            } else {
+                $this->session->set_flashdata('message', 'Error updating user');
+                redirect('users/edit/' . $id);
+            }
+        }
+    }
+
+    public function check_email_exists($email, $id) {
+        $user = $this->Project_model->get_user_by_email($email);
+        if ($user && $user->id != $id) {
+            $this->form_validation->set_message('check_email_exists', 'This email is already in use.');
+            return FALSE;
+        }
+        return TRUE;
+    }
+
+    public function check_username_exists($username, $id) {
+        $user = $this->Project_model->get_user_by_username($username);
+        if ($user && $user->id != $id) {
+            $this->form_validation->set_message('check_username_exists', 'This username is already in use.');
+            return FALSE;
+        }
+        return TRUE;
+    }
+
+    public function destroyUser($user_id) {
+        $user = $this->Project_model->get_user_by_id($user_id);
+        if (!$user) {
+            $this->session->set_flashdata('message', 'User not found');
+            redirect('view-user');
+        }
+
+        if ($user->role_id == 1) {
+            $this->session->set_flashdata('message', 'Cannot delete admin user');
+            redirect('view-user');
+        }
+
+        if ($this->Project_model->delete_user($user_id)) {
+            $this->session->set_flashdata('message', 'User deleted successfully');
+        } else {
+            $this->session->set_flashdata('message', 'Error deleting user');
+        }
+        redirect('view-user');
+    }
+    
     public function show() {
         $data['title'] = 'Add Project';
         $this->load->view('admin/header', $data);

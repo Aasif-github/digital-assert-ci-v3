@@ -17,22 +17,30 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?php echo site_url('client'); ?>">Home</a>
-                    </li>    
+                    <!-- <li class="nav-item">
+                        <a class="nav-link" href="</?php echo site_url('client'); ?>">Home</a>
+                    </li>     -->
                     <li class="nav-item">
                         <a class="nav-link" href="<?php echo site_url('admin'); ?>">Dashboard</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="<?php echo site_url('admin/show'); ?>">Add Project</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?php echo site_url('admin/show'); ?>">Manage Users</a>
-                    </li>
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown">
+                            Manage Users
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="<?php echo site_url('add-user'); ?>">Add User</a></li>
+                            <li><a class="dropdown-item" href="<?php echo site_url('view-user'); ?>">View Users</a></li>
+                            <!-- <li><a class="dropdown-item" href="#">Assign Roles</a></li>     -->
+                        </ul>
+                    </div>
+
                     <!-- Add more admin links as needed -->
                 </ul>
             </div>
-            <!-- Right-aligned links -->
+            <!-- User Dropdown -->
             <div class="collapse navbar-collapse justify-content-end" id="navbarNavRight">
                 <ul class="navbar-nav">
                     <?php if ($this->session->userdata('logged_in')): ?>
@@ -55,6 +63,12 @@
             </div>
         </div>
     </nav>
+    
+    <?php
+    $session_data = $this->session->all_userdata();
+    print_r($session_data);
+    ?>
+
     <div class="container mt-4">
         <?php if ($this->session->flashdata('success')): ?>
             <div class="alert alert-success"><?php echo $this->session->flashdata('success'); ?></div>

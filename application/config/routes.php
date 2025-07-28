@@ -19,7 +19,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 // $route['default_controller'] = 'home/index';
 
 // client
-$route['default_controller'] = 'client';
+$route['default_controller'] = 'admin/login';
+
 $route['client'] = 'client/index';
 $route['client/project/(:num)'] = 'client/project/$1';
 $route['client/media_files_by_type/(:any)'] = 'client/media_files_by_type/$1';
@@ -40,6 +41,12 @@ $route['logout'] = 'admin/logout';
 $route['register'] = 'admin/register';
 $route['authenticateUser'] = 'admin/authenticateUser';
 $route['userRegistration'] = 'admin/registerUser';  
+$route['add-user'] = 'admin/addUser';
+$route['create-user'] = 'admin/createUser';
+$route['view-user'] = 'admin/viewUser';
+$route['edit/user/(:num)'] = 'admin/editUser/$1';
+$route['update/user/(:num)'] = 'admin/updateUser/$1';
+$route['destroy/user/(:num)'] = 'admin/destroyUser/$1';
 
 // // Upload limits route
 // $route['upload-limits'] = 'home/upload_limits';

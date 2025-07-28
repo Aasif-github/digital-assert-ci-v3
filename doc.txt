@@ -27,9 +27,25 @@
   created_at
   updated_at
 
+  Table-name: roles
+  --------------------
+  id,
+  name,
+  role_id
+
+  Table-name: users
+  --------------------
+  id,
+  name,
+  role_id
 
 
 
+
+
+Defining roles (like Admin, Editor, Viewer, etc.)
 
 Android package (application/vnd.android.package-archive)
 Android package (application/vnd.android.package-archive)
+
+how to ristrict url in codeigniter direct access without login

@@ -55,23 +55,24 @@
 
 <div class="div-center">
   <div class="content">
-    <h3 style="text-align: center;">Signup</h3>
+    <h3 style="text-align: center; text-decoration: underline;">ZMQ-Digital</h3>
+    <h5 style="text-align: center;">Signup</h5>
     <hr />
     <form method="post" action="<?php echo site_url('userRegistration'); ?>">
     <div class="form-group">
         <label for="exampleInputEmail1">Username</label>
-        <input type="text" class="form-control" name="username" id="username" placeholder="Username">
+        <input type="text" class="form-control" name="username" id="username" placeholder="Username" required>
       </div>
       <br>
       <div class="form-group">
         <label for="exampleInputEmail1">Email address</label>
-        <input type="email" class="form-control" name="email" id="" placeholder="Email">
+        <input type="email" class="form-control" name="email" id="" placeholder="Email" required>
       </div>
       <br>
       <div class="form-group">
         <label for="exampleInputPassword1">Password</label>
         <div class="input-group mb-3">
-        <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+        <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
         <div class="input-group-append">
           <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
             👁️
@@ -99,5 +100,6 @@
   }
 </script>
 </div>
+
  </body>
  </html>
