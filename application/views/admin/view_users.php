@@ -16,6 +16,51 @@
         border: 1px solid #ccc;
         border-radius: 4px;
     }
+    /* toggle button */
+    .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px; /* Reduced from 60px */
+            height: 24px; /* Reduced from 34px */
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;            
+            background-color: #f44336; Red when off
+            transition: 0.4s;
+            border-radius: 24px; /* Adjusted for smaller size */
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px; /* Reduced from 26px */
+            width: 18px; /* Reduced from 26px */
+            left: 3px; /* Adjusted for smaller size */
+            bottom: 3px; /* Adjusted for smaller size */
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #04AA6D; /* Green when on */
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(16px); /* Adjusted for smaller width */
+        }
 </style>
 
 <h2 class="my-4">All Users</h2>
@@ -36,7 +81,9 @@
             <th>Name</th>
             <th>Username</th>
             <th>Email</th>
-            <th>Role</th>            
+            <th>Role</th>      
+            <th>Status</th>      
+            <th>Change Status</th>                  
             <th>Actions</th>
         </tr>
     </thead>
@@ -50,6 +97,14 @@
                     <td><?php echo htmlspecialchars($user['username'] ?? 'N/A'); ?></td>
                     <td><?php echo htmlspecialchars($user['email'] ?? 'N/A'); ?></td>
                     <td><?php echo htmlspecialchars($user['role'] ?? 'N/A'); ?></td>
+                    <td><?php echo $user['is_active'] == 1 ? 'Active' : 'Inactive'; ?></td>
+                    <td>
+                        <label class="switch">
+                        <input type="checkbox" class="status-toggle" data-user-id="<?php echo $user['id']; ?>" 
+                            <?php echo $user['is_active'] == 1 ? 'checked' : ''; ?>>
+                        <span class="slider"></span>
+                        </label>
+                    </td>
                     <td>
                         <!-- <a href="</?php echo site_url('admin/user/' . $user['id']); ?>" class="btn btn-sm btn-primary"><i class="fa-solid fa-eye"></i></a> -->
                         <a href="<?php echo site_url('edit/user/' . $user['id']); ?>" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen-to-square"></i></a>
@@ -64,5 +119,41 @@
 </table>
 
 <script>
-    let table = new DataTable('#myTable');
+    let table = new DataTable('#myTable');    
 </script>
+
+<script>
+    document.querySelectorAll('.status-toggle').forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                const userId = this.getAttribute('data-user-id');
+                const currentStatus = this.checked ? 1 : 0;
+                console.log(userId, currentStatus);
+
+                fetch('<?php echo base_url('index.php/admin/update_status'); ?>', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: `user_id=${userId}&current_status=${currentStatus}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const statusCell = this.closest('tr').children[5];
+                        statusCell.textContent = data.new_status == 1 ? 'Active' : 'Inactive';
+                        alert(data.message);
+                    } else {
+                        alert(data.message);
+                        this.checked = !this.checked; // Revert toggle on failure
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while updating status.');
+                    this.checked = !this.checked; // Revert toggle on error
+                });
+            });
+        });
+  </script>
+

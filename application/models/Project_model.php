@@ -136,4 +136,11 @@ class Project_model extends CI_Model {
         $this->db->where('id', $id);
         return $this->db->delete('users');
     }
+
+    public function update_status($user_id, $status) {
+        $data = array('is_active' => $status);
+        $this->db->where('id', $user_id);
+        return $this->db->update('users', $data);
+    }
+
 }

@@ -66,7 +66,7 @@
     
     <?php
     $session_data = $this->session->all_userdata();
-    print_r($session_data);
+    // print_r($session_data);
     ?>
 
     <div class="container mt-4">

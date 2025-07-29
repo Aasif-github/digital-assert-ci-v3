@@ -50,8 +50,16 @@ class Admin extends CI_Controller {
         $data['projects'] = $projects;
         $data['total_projects'] = $this->db->count_all('projects');
         $data['title'] = 'Admin Dashboard';
-        $this->load->view('admin/header', $data);
-        $this->load->view('admin/dashboard', $data);        
+        $data['total_users'] = $this->db->count_all('users');
+
+        if($this->session->userdata('role_id') == 1) {            
+            $this->load->view('admin/header', $data);
+            $this->load->view('admin/dashboard', $data);        
+        }else{
+            redirect('admin/login');
+        }
+
+        
     }
 
 
@@ -88,6 +96,11 @@ class Admin extends CI_Controller {
                 'logged_in' => true
             ]);
             
+            if($user->is_active == 0) {
+                $this->session->set_flashdata('error', 'Your account is inactive. Please contact the admin.');
+                redirect('admin/login');
+            }
+
             if($user->role_id == 1) {
                 redirect('admin');
             }else {
@@ -114,8 +127,14 @@ class Admin extends CI_Controller {
     public function addUser() {
         
         $data['roles'] = $this->db->get('roles')->result();
-        $this->load->view('admin/header');
-        $this->load->view('admin/add_user', $data);
+        
+        if($this->session->userdata('role_id') == 1) {            
+            $this->load->view('admin/header');
+            $this->load->view('admin/add_user', $data);
+        }else{
+            redirect('admin/login');
+        }
+        
     }
 
     public function viewUser() {
@@ -130,7 +149,6 @@ class Admin extends CI_Controller {
         $this->load->view('admin/header');
         $this->load->view('admin/view_users', $data);
     }   
-    
 
     public function createUser() {
         
@@ -168,7 +186,7 @@ class Admin extends CI_Controller {
         $this->Project_model->createUser($userData);
         $this->session->set_flashdata('success', 'User created successfully.');  
     
-        redirect('admin');
+        redirect('admin/viewUser');
     }
 
     public function editUser($user_id) {
@@ -1157,5 +1175,30 @@ class Admin extends CI_Controller {
 
         log_message('error', "Unrecognized MIME type: {$mime_type}");
         return 'unknown';
+    }
+
+    public function update_status() {
+        if ($this->input->is_ajax_request()) {
+            $user_id = $this->input->post('user_id');
+            $current_status = $this->input->post('current_status');
+            $new_status = ($current_status == 1) ? 1 : 0;
+         
+            if ($this->Project_model->update_status($user_id, $new_status)) {
+                $response = array(
+                    'success' => true,
+                    'new_status' => $new_status,
+                    'message' => 'User status updated successfully.'
+                );
+            } else {
+                $response = array(
+                    'success' => false,
+                    'message' => 'Failed to update user status.'
+                );
+            }
+
+            echo json_encode($response);
+            exit;
+        }
+        show_error('Invalid request', 400);
     }
 }
