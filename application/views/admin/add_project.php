@@ -40,8 +40,8 @@
 
     <div id="media-files-container">
         <div class="mb-3 media-file">
-            <label class="form-label">Media Thumbnail (jpg, jpeg, png, max 2MB)</label>
-            <input type="file" class="form-control" name="new_media_thumbnails[]">
+            <!-- <label class="form-label">Media Thumbnail (jpg, jpeg, png, max 2MB)</label>
+            <input type="file" class="form-control" name="new_media_thumbnails[]"> -->
             <label class="form-label">Media File</label>
             <input type="file" class="form-control" name="new_media_files[]">
             <input type="text" class="form-control mt-2" name="new_media_titles[]" placeholder="Media Title" required>
@@ -58,9 +58,7 @@ function addMediaFile() {
     const container = document.getElementById('media-files-container');
     const div = document.createElement('div');
     div.className = 'mb-3 media-file';
-    div.innerHTML = `
-        <label class="form-label">Media Thumbnail (jpg, jpeg, png, max 2MB)</label>
-        <input type="file" class="form-control" name="new_media_thumbnails[]">
+    div.innerHTML = `      
         <label class="form-label">Media File</label>
         <input type="file" class="form-control" name="new_media_files[]">
         <input type="text" class="form-control mt-2" name="new_media_titles[]" placeholder="Media Title" required>
@@ -70,3 +68,15 @@ function addMediaFile() {
     container.appendChild(div);
 }
 </script>
+
+<!-- 
+div.innerHTML = `
+        <label class="form-label">Media Thumbnail (jpg, jpeg, png, max 2MB)</label>
+        <input type="file" class="form-control" name="new_media_thumbnails[]">
+        <label class="form-label">Media File</label>
+        <input type="file" class="form-control" name="new_media_files[]">
+        <input type="text" class="form-control mt-2" name="new_media_titles[]" placeholder="Media Title" required>
+        <textarea class="form-control mt-2" name="new_media_descriptions[]" placeholder="Media Description"></textarea>
+        <button type="button" class="btn btn-danger mt-2" onclick="this.parentElement.remove()">Remove</button>
+    `;
+ -->
