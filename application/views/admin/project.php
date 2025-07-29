@@ -28,7 +28,7 @@
                         <p class="card-text"><?php echo $media['description'] ?: 'No description'; ?></p>
                         <p><small>Type: <?php echo $media['file_type']; ?> | Size: <?php echo round($media['file_size'] / 1024, 2); ?> KB</small></p>
                         <p><small>Uploaded by: <?php echo $media['username'] ?? 'Unknown'; ?></small></p>
-                        <a href="<?php echo base_url($media['file_url']); ?>" class="btn btn-primary" download>Download</a>
+                        <a href="<?php echo base_url('public/' . $media['file_url']); ?>" class="btn btn-primary" download>Download</a>
                     </div>
                 </div>
             </div>
