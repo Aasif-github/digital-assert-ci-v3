@@ -394,7 +394,7 @@ class Admin extends CI_Controller {
 
             // Configuration for media file uploads
             $config['upload_path'] = FCPATH . 'public/storage/media/';
-            $config['allowed_types'] = 'jpg|jpeg|png|mp4|mp3|3gp|pdf|doc|docx|txt|rtf|odt|xls|xlsx|csv|ppt|pptx|apk|zip';
+            $config['allowed_types'] = 'jpg|jpeg|png|mp4|mp3|3gp|pdf|doc|docx|txt|rtf|odt|xls|xlsx|csv|ppt|pptx|apk|zip|psd';
             $config['mimes'] = [
                 'apk' => [
                     'application/vnd.android.package-archive',
@@ -494,7 +494,7 @@ class Admin extends CI_Controller {
         }
 
         $config['upload_path'] = FCPATH . 'public/storage/media/';
-        $config['allowed_types'] = 'jpg|jpeg|png|mp4|mp3|3gp|pdf|doc|docx|txt|rtf|odt|xls|xlsx|csv|ppt|pptx|apk|zip';
+        $config['allowed_types'] = 'jpg|jpeg|png|mp4|mp3|3gp|pdf|doc|docx|txt|rtf|odt|xls|xlsx|csv|ppt|pptx|apk|zip|psd';
         $config['file_ext_to_mimetypes'] = ['apk' => 'application/vnd.android.package-archive'];
         $config['max_size'] = 512000; // 500MB
         $config['file_ext_tolower'] = TRUE;
@@ -849,7 +849,7 @@ class Admin extends CI_Controller {
             $thumbnails = $_FILES['existing_media_thumbnail'] ?? [];
             
             $config['upload_path'] = FCPATH . 'public/storage/media/';
-            $config['allowed_types'] = 'jpg|jpeg|png|mp4|mp3|3gp|pdf|doc|docx|txt|rtf|odt|xls|xlsx|csv|ppt|pptx|apk|zip';
+            $config['allowed_types'] = 'jpg|jpeg|png|mp4|mp3|3gp|pdf|doc|docx|txt|rtf|odt|xls|xlsx|csv|ppt|pptx|apk|zip|psd';
             $config['max_size'] = 512000; // 500MB
             $config['file_ext_tolower'] = TRUE;
             $config['mimes'] = [
@@ -953,7 +953,7 @@ class Admin extends CI_Controller {
             $thumbnails = $_FILES['new_media_thumbnail'] ?? [];
             
             $config['upload_path'] = FCPATH . 'public/storage/media/';
-            $config['allowed_types'] = 'jpg|jpeg|png|mp4|mp3|3gp|pdf|doc|docx|txt|rtf|odt|xls|xlsx|csv|ppt|pptx|apk|zip';
+            $config['allowed_types'] = 'jpg|jpeg|png|mp4|mp3|3gp|pdf|doc|docx|txt|rtf|odt|xls|xlsx|csv|ppt|pptx|apk|zip|psd';
             $config['mimes'] = [
                 'apk' => [
                     'application/vnd.android.package-archive',

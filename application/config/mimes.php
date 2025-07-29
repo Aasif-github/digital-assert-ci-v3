@@ -36,6 +36,13 @@ return array(
         'application/java-archive',        
         'application/x-zip-compressed'
     ),    
+    'psd' => array(
+        'image/vnd.adobe.photoshop',
+        'application/x-photoshop',
+        'application/photoshop',
+        'application/psd',
+        'image/psd'
+    ),
     'zip' => array('application/zip', 'application/x-zip-compressed')
 );
 

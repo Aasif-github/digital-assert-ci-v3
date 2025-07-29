@@ -59,10 +59,10 @@
   </div>
 </nav>
 
-    <?php
+    <!-- </?php
     $session_data = $this->session->all_userdata();
     print_r($session_data);
-    ?>
+    ?> -->
 
     
 
