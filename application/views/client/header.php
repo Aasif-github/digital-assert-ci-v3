@@ -60,8 +60,8 @@
 </nav>
 
     <?php
-    $session_data = $this->session->all_userdata();
-    print_r($session_data);
+    // $session_data = $this->session->all_userdata();
+    // print_r($session_data);
     ?>
 
     

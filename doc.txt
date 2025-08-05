@@ -37,15 +37,37 @@
   --------------------
   id,
   name,
-  role_id
+  username,
+  email,
+  password,
+  role_id,
+  is_active,
+  created_at,
+  updated_at
+
+Table-name: permissions
+-----------------------
+id
+task
+read
+write
+update
+delete
+user_id
+created_at  - current_timestamp()			
+updated_at	- timestamp	
+is_active
+
+Table-name: users_permissions
+-----------------------------
+id,
+permission_id,
+user_id
 
 
 
 
-
-Defining roles (like Admin, Editor, Viewer, etc.)
+Defining roles (like Admin, Editor, User(Viewer), etc.)
 
 Android package (application/vnd.android.package-archive)
 Android package (application/vnd.android.package-archive)
-
-how to ristrict url in codeigniter direct access without login

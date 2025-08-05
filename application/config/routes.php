@@ -11,7 +11,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 */
 
-
 // $route['client'] = 'client/index';
 // $route['client/project/(:num)'] = 'client/project/$1';
 
